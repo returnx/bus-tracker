@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lokkate Bus Tracker (OpenStreetMap)</title>
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Bus Tracker">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --panel-bg: rgba(255, 255, 255, 0.9);
+            --border-color: rgba(15, 23, 42, 0.08);
+            --primary-color: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.15);
+            --success-color: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Move Leaflet zoom control slightly up */
+        .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+            margin-bottom: 50px !important;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-container {
+            font-size: 26px;
+            animation: bounce 2s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-3px); }
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Config Input Section */
+        .hash-input-container {
+            display: flex;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .hash-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 13px;
+            padding: 6px 12px;
+            flex-grow: 1;
+            font-family: inherit;
+        }
+
+        .hash-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .track-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            outline: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .track-btn:hover {
+            background: #1d4ed8;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        /* Main Map and Controls Container */
+        .main-container {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        /* Floating glassmorphic widgets */
+        .overlay-panel {
+            position: absolute;
+            z-index: 1000;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Telemetry Dashboard Info Panel - Small & Simple */
+        .dashboard-panel {
+            bottom: 25px; /* Moved to bottom with margin */
+            left: 15px;
+            width: 150px; /* Compressed width */
+            padding: 6px 8px; /* Compressed padding */
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .vehicle-meta {
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            padding-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reg-no-badge {
+            font-size: 10px; /* Reduced from 11px */
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .bus-type-lbl {
+            display: none;
+        }
+
+        /* Status Dot Indicator */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(15, 23, 42, 0.04);
+            padding: 1px 5px;
+            border-radius: 8px;
+            font-size: 8px;
+            font-weight: 500;
+            border: 1px solid rgba(15, 23, 42, 0.02);
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #64748b;
+        }
+
+        .status-dot.active {
+            background: var(--success-color);
+            box-shadow: 0 0 3px var(--success-glow);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Telemetry Stats Rows - Vertical Layout */
+        .stats-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .stat-value.speed-val {
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        /* Quick Controls overlay button list */
+        .controls-panel {
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 6px;
+        }
+
+        .control-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .control-btn:hover {
+            background: #f1f5f9;
+            transform: scale(1.05);
+        }
+
+        .control-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 6px var(--primary-glow);
+        }
+
+        /* Popover Map Theme Menu Styles */
+        .theme-menu-container {
+            position: relative;
+        }
+
+        .theme-menu {
+            display: none;
+            position: absolute;
+            right: 48px;
+            top: 0;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            padding: 4px;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 120px;
+            z-index: 1051;
+        }
+
+        .theme-menu.show {
+            display: flex;
+        }
+
+        .theme-menu-item {
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--text-color);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .theme-menu-item:hover {
+            background: rgba(15, 23, 42, 0.06);
+        }
+
+        .theme-menu-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+
+
+        /* Leaflet Custom Pulsing Marker styles */
+        .custom-leaflet-marker {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bus-marker-image {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.25));
+            z-index: 2;
+        }
+
+        .marker-pulse {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.4);
+            animation: markerPulse 1.8s infinite ease-out;
+            z-index: 1;
+        }
+
+        @keyframes markerPulse {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2.0); opacity: 0; }
+        }
+
+        /* Loading / Error Banner Overlay */
+        .state-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            transition: opacity 0.5s ease;
+            color: #0f172a;
+        }
+
+        .state-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-ring {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .state-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .state-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 400px;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 20px;
+        }
+
+        .error-retry-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .error-retry-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Tooltip style popup */
+        .info-window-content {
+            color: #1e293b;
+            padding: 4px;
+            font-family: var(--font-family);
+        }
+
+        .info-window-content h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .info-window-content p {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        /* Responsive Mobile Layout adjustment */
+        @media (max-width: 768px) {
+            body {
+                overflow: hidden;
+            }
+            .main-container {
+                height: 100vh;
+            }
+            #map {
+                position: absolute;
+                top: 0; bottom: 0; left: 0; right: 0;
+                height: 100%;
+            }
+            .dashboard-panel {
+                position: absolute;
+                bottom: 25px; /* Moved to bottom */
+                left: 10px;
+                width: 150px; /* Compressed width */
+                height: auto;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                padding: 6px 8px;
+            }
+            .controls-panel {
+                top: 15px; /* Back to top since dashboard is at bottom */
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main View Section -->
+    <div class="main-container">
+        <!-- Google Map canvas -->
+        <div id="map"></div>
+
+        <!-- Telemetry Panel (Bottom overlay) -->
+        <div class="overlay-panel dashboard-panel">
+            <div class="vehicle-meta">
+                <div class="reg-no-badge" id="regNoBadge">-</div>
+                <div class="bus-type-lbl" style="display: none;">
+                    <span id="vehicleTypeBadge">Vehicle</span>
+                </div>
+                <div class="status-badge">
+                    <div class="status-dot" id="ignitionStatusDot"></div>
+                    <span id="ignitionStatusText">Offline</span>
+                </div>
+            </div>
+
+            <!-- Stats Rows (Vertical Layout) -->
+            <div class="stats-rows">
+                <div class="stat-row">
+                    <span class="stat-label">Ping:</span>
+                    <span class="stat-value" id="pingText" style="color: var(--primary-color); font-weight: 600;">-</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Speed:</span>
+                    <span class="stat-value speed-val" id="speedText">0 km/h</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Signal:</span>
+                    <span class="stat-value" id="signalText">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Float Controls (Right side overlay) -->
+        <div class="overlay-panel controls-panel">
+            <button class="control-btn" id="recenterBtn" title="Recenter Map on Bus">🎯</button>
+            <button class="control-btn active" id="autopanBtn" title="Toggle Auto-Center Mode">🔒</button>
+            <button class="control-btn" id="clearTrailBtn" title="Clear Route History">🧹</button>
+            <div class="theme-menu-container">
+                <button class="control-btn" id="themeBtn" title="Select Map Style">🗺️</button>
+                <div class="theme-menu" id="themeMenu">
+                    <button class="theme-menu-item" data-theme="voyager">Voyager</button>
+                    <button class="theme-menu-item" data-theme="streets">Esri Streets</button>
+                    <button class="theme-menu-item" data-theme="osm">OpenStreetMap</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading / Error overlay state -->
+        <div class="state-overlay" id="stateOverlay">
+            <div class="loader-ring" id="overlayLoader"></div>
+            <div class="state-title" id="overlayTitle">Fetching Location</div>
+            <div class="state-desc" id="overlayDesc">Contacting the server and resolving the bus share credentials...</div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="error-retry-btn" id="retryBtn" style="display: none;">Retry Connection</button>
+                <button class="error-retry-btn" id="manualModeBtn" style="display: none; background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #1e3a8a;">Manual Input</button>
+            </div>
+
+            <!-- Manual Override Form -->
+            <div id="manualForm" style="display: none; margin-top: 20px; background: #ffffff; border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; width: 320px; flex-direction: column; gap: 12px;">
+                <h4 style="font-size: 14px; font-weight: 600; text-align: center; margin-bottom: 4px; color: var(--text-color);">Manual Telemetry Bypass</h4>
+                <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 8px;">Enter vehicle details if CORS blocks the server API validation.</p>
+                <input type="text" id="manualVehicleId" class="hash-input" style="border: 1px solid var(--border-color); background: #f1f5f9; width: 100%; border-radius: 6px;" placeholder="Vehicle ID (e.g. 4881)" />
+                <input type="text" id="manualRegNo" class="hash-input" style="border: 1px solid var(--border-color); background: #f1f5f9; width: 100%; border-radius: 6px;" placeholder="Reg Number (e.g. KA-51-B-9317)" />
+                <button id="manualSubmitBtn" class="track-btn" style="width: 100%; margin-top: 4px;">Start Tracking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        // Set fallback hash / URL tracking
+        let currentHash = 'b45ab0e793fc100b83a644182d73cba78a828b36';
+        
+        // Retrieve hash from path URL if it exists, or URL query params
+        const pathHash = window.location.pathname.split('/').pop();
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryHash = urlParams.get('hash');
+
+        if (pathHash && pathHash.length > 20 && !pathHash.includes('.html')) {
+            currentHash = pathHash;
+        } else if (queryHash) {
+            currentHash = queryHash;
+        }
+
+
+
+        let map = null;
+        let busMarker = null;
+        let busPathTrail = null;
+        let pathCoordinates = [];
+        let autoPanEnabled = true;
+        let updateTimer = null;
+        let currentVehicleDetails = null;
+
+        // Map settings
+        let mapProvider = 'leaflet'; // OpenStreetMap via Leaflet is the default provider.
+        let leafletTileLayer = null;
+        let currentMapStyle = localStorage.getItem('map_style') || 'voyager';
+
+
+
+        // Try load historical path from storage
+        try {
+            const savedTrail = localStorage.getItem(`trail_${currentHash}`);
+            if (savedTrail) {
+                pathCoordinates = JSON.parse(savedTrail);
+            }
+        } catch(e) {
+            console.error('Failed to load trail coordinates from localStorage', e);
+        }
+
+        // Initialize Unified Map Wrapper
+        function initMap(lat, lng) {
+            // Clear the map container first (important to avoid multiple map instances overlapping)
+            document.getElementById("map").innerHTML = "";
+            map = null;
+            busMarker = null;
+            busPathTrail = null;
+
+            initLeafletMap(lat, lng);
+        }
+
+        // Initialize Leaflet Map
+        function initLeafletMap(lat, lng) {
+            const defaultLocation = [lat || 12.9716, lng || 77.5946];
+            const schoolBusIcon = encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+                    <defs>
+                        <linearGradient id="body" x1="16" x2="80" y1="20" y2="74" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#ffd84d"/>
+                            <stop offset="1" stop-color="#f59e0b"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M18 30c0-7 6-13 13-13h34c7 0 13 6 13 13v36c0 5-4 9-9 9H27c-5 0-9-4-9-9V30z" fill="url(#body)" stroke="#7c2d12" stroke-width="4"/>
+                    <path d="M25 33c0-4 3-7 7-7h32c4 0 7 3 7 7v9H25v-9z" fill="#1f2937"/>
+                    <path d="M30 30h15v10H30zM51 30h15v10H51z" fill="#dbeafe"/>
+                    <path d="M25 48h46v10H25z" fill="#111827"/>
+                    <path d="M30 51h8M44 51h8M58 51h8" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="33" cy="75" r="8" fill="#111827"/>
+                    <circle cx="63" cy="75" r="8" fill="#111827"/>
+                    <circle cx="33" cy="75" r="3" fill="#e5e7eb"/>
+                    <circle cx="63" cy="75" r="3" fill="#e5e7eb"/>
+                    <path d="M31 63h34" stroke="#92400e" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="25" cy="61" r="3" fill="#fee2e2"/>
+                    <circle cx="71" cy="61" r="3" fill="#fee2e2"/>
+                </svg>
+            `);
+            
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: true
+            }).setView(defaultLocation, 16);
+
+            L.control.zoom({
+                position: 'bottomright'
+            }).addTo(map);
+
+            leafletTileLayer = null;
+            applyLeafletStyle();
+
+            // Create Polyline trail
+            const leafletCoords = pathCoordinates.map(c => [c.lat, c.lng]);
+            busPathTrail = L.polyline(leafletCoords, {
+                color: '#2563eb',
+                opacity: 0.8,
+                weight: 4
+            }).addTo(map);
+
+            // Bus marker
+            const pulsingIcon = L.divIcon({
+                className: 'custom-leaflet-marker',
+                html: `<div class="marker-pulse"></div><img class="bus-marker-image" src="data:image/svg+xml,${schoolBusIcon}" alt="School bus">`,
+                iconSize: [46, 46],
+                iconAnchor: [23, 38],
+                popupAnchor: [0, -34]
+            });
+
+            busMarker = L.marker(defaultLocation, { icon: pulsingIcon }).addTo(map);
+
+            busMarker.bindPopup(`
+                <div class="info-window-content">
+                    <h4 id="iw-regNo-leaflet">Bus</h4>
+                    <p id="iw-status-leaflet">Ignition Off</p>
+                </div>
+            `);
+
+            busMarker.on('click', () => {
+                setTimeout(() => {
+                    const elReg = document.getElementById('iw-regNo-leaflet');
+                    const elStatus = document.getElementById('iw-status-leaflet');
+                    if (elReg && currentVehicleDetails) {
+                        elReg.textContent = currentVehicleDetails.registrationNumber;
+                    }
+                    if (elStatus && currentVehicleDetails) {
+                        elStatus.textContent = currentVehicleDetails.ignitionStatus ? "Moving" : "Stopped";
+                    }
+                }, 50);
+            });
+        }
+
+        const mapStyles = {
+            voyager: {
+                url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                attr: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            },
+            streets: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+                attr: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+            },
+            osm: {
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                attr: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+        };
+
+        function applyLeafletStyle() {
+            if (leafletTileLayer) {
+                map.removeLayer(leafletTileLayer);
+            }
+
+            const styleConfig = mapStyles[currentMapStyle] || mapStyles.voyager;
+            leafletTileLayer = L.tileLayer(styleConfig.url, {
+                maxZoom: 19,
+                attribution: styleConfig.attr,
+                r: L.Browser.retina ? '@2x' : ''
+            }).addTo(map);
+        }
+
+        // Helper to get current bus position
+        function getBusPosition() {
+            if (busMarker && map) {
+                const latlng = busMarker.getLatLng();
+                return { lat: latlng.lat, lng: latlng.lng };
+            }
+            if (pathCoordinates.length > 0) {
+                return pathCoordinates[pathCoordinates.length - 1];
+            }
+            return null;
+        }
+
+        // Helper to calculate distance between two coordinates in meters (Haversine)
+        function getDistance(p1, p2) {
+            const R = 6371e3; // meters
+            const phi1 = p1.lat * Math.PI/180;
+            const phi2 = p2.lat * Math.PI/180;
+            const deltaPhi = (p2.lat-p1.lat) * Math.PI/180;
+            const deltaLambda = (p2.lng-p1.lng) * Math.PI/180;
+
+            const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
+                      Math.cos(phi1) * Math.cos(phi2) *
+                      Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c; // in meters
+        }
+
+        // Fetch road route geometry from public OSRM API
+        async function getRoadRoute(fromPos, toPos) {
+            try {
+                const url = `https://router.project-osrm.org/route/v1/driving/${fromPos.lng},${fromPos.lat};${toPos.lng},${toPos.lat}?overview=full&geometries=geojson`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('OSRM routing request failed');
+                const data = await res.json();
+                if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                    return data.routes[0].geometry.coordinates.map(c => ({ lat: c[1], lng: c[0] }));
+                }
+            } catch (e) {
+                console.error('Failed to get road route:', e);
+            }
+            return [toPos]; // Fallback to straight line
+        }
+
+        // State UI handler
+        function showLoading(title, desc) {
+            document.getElementById('stateOverlay').classList.remove('hidden');
+            document.getElementById('overlayLoader').style.display = 'block';
+            document.getElementById('retryBtn').style.display = 'none';
+            document.getElementById('manualModeBtn').style.display = 'none';
+            document.getElementById('manualForm').style.display = 'none';
+            document.getElementById('overlayTitle').textContent = title || "Fetching Location";
+            document.getElementById('overlayDesc').textContent = desc || "Contacting the server...";
+        }
+
+        function showError(title, desc) {
+            document.getElementById('stateOverlay').classList.remove('hidden');
+            document.getElementById('overlayLoader').style.display = 'none';
+            document.getElementById('retryBtn').style.display = 'block';
+            document.getElementById('manualModeBtn').style.display = 'block';
+            document.getElementById('overlayTitle').textContent = title || "Connection Error";
+            document.getElementById('overlayDesc').textContent = desc || "Something went wrong.";
+        }
+
+        function hideOverlay() {
+            document.getElementById('stateOverlay').classList.add('hidden');
+            document.getElementById('manualForm').style.display = 'none';
+        }
+
+        // Connect to API and fetch details
+        async function startTracking(hash) {
+            if (updateTimer) {
+                clearInterval(updateTimer);
+            }
+            currentHash = hash;
+            showLoading("Verifying Link", "Connecting to api.tracknerd.io to resolve the vehicle...");
+
+            try {
+                // Fetch details from tracknerd api
+                const apiRes = await fetch(`https://api.tracknerd.io/v1/link/live/${hash}`);
+
+                if (!apiRes.ok) {
+                    throw new Error(`API response status: ${apiRes.status}`);
+                }
+
+                const data = await apiRes.json();
+                console.log("Vehicle details response:", data);
+
+                if (!data || data.length === 0) {
+                    throw new Error("No vehicles are associated with this tracking link.");
+                }
+
+                const vehicleData = data[0].vehicle;
+                if (!vehicleData) {
+                    throw new Error("Vehicle node missing in response.");
+                }
+
+                // Update UI badge
+                document.getElementById('regNoBadge').innerHTML = `<span>🚌</span> ${vehicleData.registrationNumber}`;
+                document.getElementById('vehicleTypeBadge').textContent = vehicleData.type || "School Bus";
+
+                // Save vehicle metadata
+                currentVehicleDetails = {
+                    id: vehicleData.id,
+                    registrationNumber: vehicleData.registrationNumber
+                };
+
+                // Clear previous trail if switching hash
+                if (localStorage.getItem(`trail_${hash}`) === null) {
+                    pathCoordinates = [];
+                    if (busPathTrail) {
+                        if (mapProvider === 'google') busPathTrail.setPath([]);
+                        else busPathTrail.setLatLngs([]);
+                    }
+                }
+
+                // Start polling location database
+                pollLocation(vehicleData.id, vehicleData.registrationNumber);
+                updateTimer = setInterval(() => {
+                    pollLocation(vehicleData.id, vehicleData.registrationNumber);
+                }, 5000); // Poll every 5 seconds
+
+            } catch (err) {
+                console.error("API Fetch error:", err);
+                showError("Tracking Link Invalid", err.message || "Failed to parse tracking credentials. The link may have expired or is incorrect.");
+            }
+        }
+
+        // Firebase RTDB Polling
+        async function pollLocation(vehicleId, regNo) {
+            try {
+                const url = `https://tracknerd-production-default-rtdb.firebaseio.com/${vehicleId}-${regNo}/location.json`;
+                const dbRes = await fetch(url);
+
+                if (!dbRes.ok) {
+                    throw new Error(`Database connection failed: ${dbRes.status}`);
+                }
+
+                const location = await dbRes.json();
+                console.log("Firebase Telemetry update:", location);
+
+                if (!location || !location.latitude || !location.longitude) {
+                    throw new Error("Missing coordinates in database telemetry.");
+                }
+
+                // Hide overlay
+                hideOverlay();
+
+                const lat = Number(location.latitude);
+                const lng = Number(location.longitude);
+                const speed = location.speed || 0;
+                const ignition = location.ignitionStatus || false;
+                const statusStr = location.statusV2 || (ignition ? "Moving" : "Stopped");
+                const satellites = location.satellites || 0;
+                const voltage = (location.externalPowerVoltage || 0) / 1000.0; // convert to volts if millivolts
+                const hdop = location.gnssHDOP || 0;
+                const odometer = ((location.totalOdometer || 0) / 1000.0).toFixed(1); // convert to km
+                // Format ping time as 24-hour time without AM/PM
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                const pingTime = location.timestamp ? new Date(location.timestamp).toLocaleTimeString('en-US', timeOptions) : new Date().toLocaleTimeString('en-US', timeOptions);
+
+                // Update Telemetry Panel UI
+                document.getElementById('pingText').textContent = pingTime;
+                document.getElementById('speedText').textContent = `${speed} km/h`;
+                document.getElementById('signalText').textContent = hdop;
+
+                // Update ignition dot
+                const dot = document.getElementById('ignitionStatusDot');
+                const text = document.getElementById('ignitionStatusText');
+                if (ignition) {
+                    dot.className = 'status-dot active';
+                    text.textContent = statusStr;
+                    text.style.color = 'var(--success-color)';
+                } else {
+                    dot.className = 'status-dot';
+                    text.textContent = statusStr;
+                    text.style.color = 'var(--text-muted)';
+                }
+
+                // Save updated details
+                currentVehicleDetails.ignitionStatus = ignition;
+
+                // Update map marker and polyline path
+                const newPos = { lat: lat, lng: lng };
+                
+                // Only add to trail if coordinates changed
+                const lastCoord = pathCoordinates[pathCoordinates.length - 1];
+                if (!lastCoord) {
+                    pathCoordinates.push(newPos);
+                    try {
+                        localStorage.setItem(`trail_${currentHash}`, JSON.stringify(pathCoordinates));
+                    } catch(e) {}
+                    if (busPathTrail) {
+                        busPathTrail.setLatLngs(pathCoordinates.map(c => [c.lat, c.lng]));
+                    }
+                } else if (lastCoord.lat !== lat || lastCoord.lng !== lng) {
+                    const dist = getDistance(lastCoord, newPos);
+                    // Only match road route if the distance is more than 5 meters (ignores tiny GPS jumps)
+                    if (dist > 5) {
+                        const roadCoords = await getRoadRoute(lastCoord, newPos);
+                        // Append OSRM road snapped coordinates
+                        roadCoords.forEach(pt => {
+                            // Avoid adding duplicates of the last point
+                            const currLast = pathCoordinates[pathCoordinates.length - 1];
+                            if (!currLast || currLast.lat !== pt.lat || currLast.lng !== pt.lng) {
+                                pathCoordinates.push(pt);
+                            }
+                        });
+                    } else {
+                        pathCoordinates.push(newPos);
+                    }
+                    
+                    // Maintain a reasonable max trail size
+                    if (pathCoordinates.length > 2000) {
+                        pathCoordinates = pathCoordinates.slice(-2000);
+                    }
+                    
+                    // Save to localstorage
+                    try {
+                        localStorage.setItem(`trail_${currentHash}`, JSON.stringify(pathCoordinates));
+                    } catch(e) {}
+
+                    if (busPathTrail) {
+                        busPathTrail.setLatLngs(pathCoordinates.map(c => [c.lat, c.lng]));
+                    }
+                }
+
+                // Initialize Map if not loaded yet
+                if (!map) {
+                    initMap(lat, lng);
+                } else {
+                    // Update marker position
+                    if (busMarker) {
+                        busMarker.setLatLng([lat, lng]);
+                    }
+
+                    // Auto-pan to vehicle
+                    if (autoPanEnabled) {
+                        map.panTo([lat, lng]);
+                    }
+                }
+
+            } catch (err) {
+                console.error("Firebase fetch error:", err);
+                // Don't show full error overlay if we already have the map loaded (just log)
+                if (!map) {
+                    showError("Telemetry Loading Failed", err.message || "Failed to retrieve bus coordinates from the realtime database.");
+                }
+            }
+        }
+
+        // Control Panel UI Handlers
+        document.getElementById('recenterBtn').addEventListener('click', () => {
+            const pos = getBusPosition();
+            if (pos && map) {
+                map.setView([pos.lat, pos.lng], 16);
+            }
+        });
+
+        const autopanBtn = document.getElementById('autopanBtn');
+        autopanBtn.addEventListener('click', () => {
+            autoPanEnabled = !autoPanEnabled;
+            if (autoPanEnabled) {
+                autopanBtn.classList.add('active');
+                const pos = getBusPosition();
+                if (pos && map) {
+                    map.panTo([pos.lat, pos.lng]);
+                }
+            } else {
+                autopanBtn.classList.remove('active');
+            }
+        });
+
+        // Clear route history button
+        document.getElementById('clearTrailBtn').addEventListener('click', () => {
+            if (confirm("Are you sure you want to clear the bus's traveled route trail history?")) {
+                pathCoordinates = [];
+                localStorage.removeItem(`trail_${currentHash}`);
+                if (busPathTrail) {
+                    busPathTrail.setLatLngs([]);
+                }
+            }
+        });
+
+        // Toggle map themes menu
+        const themeBtn = document.getElementById('themeBtn');
+        const themeMenu = document.getElementById('themeMenu');
+
+        themeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            themeMenu.classList.toggle('show');
+        });
+
+        // Hide menu when clicking outside
+        document.addEventListener('click', () => {
+            themeMenu.classList.remove('show');
+        });
+
+        // Handle menu item selection
+        const menuItems = document.querySelectorAll('.theme-menu-item');
+        
+        function updateActiveMenuItem() {
+            menuItems.forEach(item => {
+                if (item.getAttribute('data-theme') === currentMapStyle) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                currentMapStyle = item.getAttribute('data-theme');
+                localStorage.setItem('map_style', currentMapStyle);
+                applyLeafletStyle();
+                updateActiveMenuItem();
+                themeMenu.classList.remove('show');
+            });
+        });
+
+        // Initialize active menu item on load
+        updateActiveMenuItem();
+
+
+
+        document.getElementById('retryBtn').addEventListener('click', () => {
+            startTracking(currentHash);
+        });
+
+        // Toggle manual form
+        document.getElementById('manualModeBtn').addEventListener('click', () => {
+            const form = document.getElementById('manualForm');
+            form.style.display = form.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Submit manual form
+        document.getElementById('manualSubmitBtn').addEventListener('click', () => {
+            const vehicleId = document.getElementById('manualVehicleId').value.trim();
+            const regNo = document.getElementById('manualRegNo').value.trim();
+
+            if (!vehicleId || !regNo) {
+                alert("Please enter both Vehicle ID and Registration Number.");
+                return;
+            }
+
+            // Setup manual tracking details
+            document.getElementById('regNoBadge').innerHTML = `<span>🚌</span> ${regNo}`;
+            document.getElementById('vehicleTypeBadge').textContent = "Manual Overridden Bus";
+
+            currentVehicleDetails = {
+                id: vehicleId,
+                registrationNumber: regNo
+            };
+
+            // Clear previous interval if any
+            if (updateTimer) {
+                clearInterval(updateTimer);
+            }
+
+            // Hide overlay entirely
+            hideOverlay();
+
+            // Start polling location database
+            pollLocation(vehicleId, regNo);
+            updateTimer = setInterval(() => {
+                pollLocation(vehicleId, regNo);
+            }, 5000);
+        });
+
+        // Keep provider UI in sync on startup.
+        window.addEventListener('load', () => {
+            mapProvider = 'leaflet';
+            // Service Worker registration for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.error('Service worker registration failed', err));
+            }
+        });
+
+        // Start initial load
+        startTracking(currentHash);
+    </script>
+</body>
+</html>
