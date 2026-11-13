@@ -1,13 +1,14 @@
-const CACHE_NAME = 'bus-tracker-v7';
+const CACHE_NAME = 'bus-tracker-v8';
 const ASSETS = [
-  '/',
-  '/bus.html',
-  '/buses-data.js',
-  '/buses.json',
-  '/manifest.json',
-  '/icon.svg',
-  '/icon-192.png',
-  '/icon-512.png'
+  './',
+  './index.html',
+  './bus.html',
+  './buses-data.js',
+  './buses.json',
+  './manifest.json',
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
@@ -35,7 +36,6 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Let browser handle standard requests normally, falling back to cache if offline
   e.respondWith(
     fetch(e.request).catch(() => {
       return caches.match(e.request);
