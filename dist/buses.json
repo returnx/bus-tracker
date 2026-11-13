@@ -1,0 +1,848 @@
+[
+  {
+    "id": "1to12",
+    "title": "Grades 1 to 12",
+    "sheetName": "GPRS-1TO12",
+    "badge": "Grades 1-12",
+    "count": 67,
+    "buses": [
+      {
+        "sl": 1,
+        "vehicle": "KA51B 3962",
+        "route": "1",
+        "link": "https://lokkate.tracknerd.io/live/link/454f3645563fddbd6c52b900929e96e26df74b3d",
+        "hash": "454f3645563fddbd6c52b900929e96e26df74b3d",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 2,
+        "vehicle": "KA51C 4506",
+        "route": "1A",
+        "link": "https://lokkate.tracknerd.io/live/link/50edb058e69b19b602d24c312961a48bb311a3b7",
+        "hash": "50edb058e69b19b602d24c312961a48bb311a3b7",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 3,
+        "vehicle": "KA51C 4679",
+        "route": "2",
+        "link": "https://lokkate.tracknerd.io/live/link/d0280a3cb52e626c421468bf73e69fcfd46763c6",
+        "hash": "d0280a3cb52e626c421468bf73e69fcfd46763c6",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 4,
+        "vehicle": "KA51B 8669",
+        "route": "2A",
+        "link": "https://lokkate.tracknerd.io/live/link/b861735f05aad538f793717b245c60cf36e9b601",
+        "hash": "b861735f05aad538f793717b245c60cf36e9b601",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 5,
+        "vehicle": "KA51B 8345",
+        "route": "2B",
+        "link": "https://lokkate.tracknerd.io/live/link/a24d1c8c8d02d520a43597cd946e2516ecce030e",
+        "hash": "a24d1c8c8d02d520a43597cd946e2516ecce030e",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 6,
+        "vehicle": "KA51B 9030",
+        "route": "2C",
+        "link": "https://lokkate.tracknerd.io/live/link/ed2b869eba81b9fce496d5b07d9673e3c3a24d8b",
+        "hash": "ed2b869eba81b9fce496d5b07d9673e3c3a24d8b",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 7,
+        "vehicle": "KA51B4017",
+        "route": "3",
+        "link": "https://lokkate.tracknerd.io/live/link/393b6db914ae0d7f9440f383c3f5a769ab4ab846",
+        "hash": "393b6db914ae0d7f9440f383c3f5a769ab4ab846",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 8,
+        "vehicle": "KA51B 9036",
+        "route": "3A",
+        "link": "https://lokkate.tracknerd.io/live/link/91ec716d69ac49db43c67696a625784283d9762d",
+        "hash": "91ec716d69ac49db43c67696a625784283d9762d",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 9,
+        "vehicle": "KA51B 9031",
+        "route": "3B",
+        "link": "https://lokkate.tracknerd.io/live/link/dc713a5e4fc007b19afb28a60ea3f27b496c7f80",
+        "hash": "dc713a5e4fc007b19afb28a60ea3f27b496c7f80",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 10,
+        "vehicle": "KA05AN 9601",
+        "route": "4",
+        "link": "https://lokkate.tracknerd.io/live/link/8a093f7c935782bf17d4f5f57747279e6a1664e7",
+        "hash": "8a093f7c935782bf17d4f5f57747279e6a1664e7",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 11,
+        "vehicle": "CH347933",
+        "route": "6",
+        "link": "https://lokkate.tracknerd.io/live/link/23778bb11e98a3ca513e1b4df40dcd89c6eb9d77",
+        "hash": "23778bb11e98a3ca513e1b4df40dcd89c6eb9d77",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 12,
+        "vehicle": "KA05AN 9625",
+        "route": "6A",
+        "link": "https://lokkate.tracknerd.io/live/link/fa46c663fbf1ecf25deda11e0697bfc9bc40bff7",
+        "hash": "fa46c663fbf1ecf25deda11e0697bfc9bc40bff7",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 13,
+        "vehicle": "KA05AN 9257",
+        "route": "6B",
+        "link": "https://lokkate.tracknerd.io/live/link/751a657be61ec091a5e0ef11477fe84b2095b200",
+        "hash": "751a657be61ec091a5e0ef11477fe84b2095b200",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 14,
+        "vehicle": "KA51AF 0057",
+        "route": "6D",
+        "link": "https://lokkate.tracknerd.io/live/link/b83ca7b054173b0f0c9bbe30a5c412bd9353b3e7",
+        "hash": "b83ca7b054173b0f0c9bbe30a5c412bd9353b3e7",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 15,
+        "vehicle": "KA51C 4478",
+        "route": "7",
+        "link": "https://lokkate.tracknerd.io/live/link/f74c505a27b77827efbba1bbcba210457922d179",
+        "hash": "f74c505a27b77827efbba1bbcba210457922d179",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 16,
+        "vehicle": "KA51B 8672",
+        "route": "7A",
+        "link": "https://lokkate.tracknerd.io/live/link/efab29e5abcd979f0c50556c8f4974971dab20f5",
+        "hash": "efab29e5abcd979f0c50556c8f4974971dab20f5",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 17,
+        "vehicle": "KA51B 4015",
+        "route": "7B",
+        "link": "https://lokkate.tracknerd.io/live/link/d53f070c88b8a639d67523abc8dfc569eef964f7",
+        "hash": "d53f070c88b8a639d67523abc8dfc569eef964f7",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 18,
+        "vehicle": "KA51B 8806",
+        "route": "7C",
+        "link": "https://lokkate.tracknerd.io/live/link/21fcccfc7c4e584f2f7c292f2fc3114f3c1c98a9",
+        "hash": "21fcccfc7c4e584f2f7c292f2fc3114f3c1c98a9",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 19,
+        "vehicle": "KA51C 5123",
+        "route": "7D",
+        "link": "https://lokkate.tracknerd.io/live/link/229fe766cf78eda8f142ef0ea706af95564110e1",
+        "hash": "229fe766cf78eda8f142ef0ea706af95564110e1",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 20,
+        "vehicle": "KA51AH 2519",
+        "route": "7E",
+        "link": "https://lokkate.tracknerd.io/live/link/7b7a15624cf250a6ba73fc36c3ca6749f2ea2864",
+        "hash": "7b7a15624cf250a6ba73fc36c3ca6749f2ea2864",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 21,
+        "vehicle": "KA51AF 0058",
+        "route": "7F",
+        "link": "https://lokkate.tracknerd.io/live/link/46d96d1c82107e97a050ae49e81754d8af1291ae",
+        "hash": "46d96d1c82107e97a050ae49e81754d8af1291ae",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 22,
+        "vehicle": "KA51B 9322",
+        "route": "7G",
+        "link": "https://lokkate.tracknerd.io/live/link/1b4ed1291cf15631aaedb595c60ee88be241c290",
+        "hash": "1b4ed1291cf15631aaedb595c60ee88be241c290",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 23,
+        "vehicle": "KA05AN 9886",
+        "route": "7H",
+        "link": "https://lokkate.tracknerd.io/live/link/57123cf1f242f0e9fced3e8def7c656d8ddd4fc3",
+        "hash": "57123cf1f242f0e9fced3e8def7c656d8ddd4fc3",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 24,
+        "vehicle": "KA51AJ 1558",
+        "route": "7I",
+        "link": "https://lokkate.tracknerd.io/live/link/bfb85399b1b536e90ea2397196f5bd890a635662",
+        "hash": "bfb85399b1b536e90ea2397196f5bd890a635662",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 25,
+        "vehicle": "CH347141",
+        "route": "7J",
+        "link": "https://lokkate.tracknerd.io/live/link/c69539e01a4c39c7a5626a8d5764f2c3cc779fe0",
+        "hash": "c69539e01a4c39c7a5626a8d5764f2c3cc779fe0",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 26,
+        "vehicle": "KA51B 9317",
+        "route": "8A",
+        "link": "https://lokkate.tracknerd.io/live/link/b45ab0e793fc100b83a644182d73cba78a828b36",
+        "hash": "b45ab0e793fc100b83a644182d73cba78a828b36",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 27,
+        "vehicle": "KA05AN 9889",
+        "route": "9",
+        "link": "https://lokkate.tracknerd.io/live/link/22573717491660cc0eb89781083a4b0559df9d98",
+        "hash": "22573717491660cc0eb89781083a4b0559df9d98",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 28,
+        "vehicle": "KA51AH 2280",
+        "route": "9A",
+        "link": "https://lokkate.tracknerd.io/live/link/31ae889ee1f72e293e32337b57302a8c1b277f88",
+        "hash": "31ae889ee1f72e293e32337b57302a8c1b277f88",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 29,
+        "vehicle": "CH347773",
+        "route": "10",
+        "link": "https://lokkate.tracknerd.io/live/link/8883de1f93dfb210b4558f1452cf5cda3fa3cef7",
+        "hash": "8883de1f93dfb210b4558f1452cf5cda3fa3cef7",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 30,
+        "vehicle": "KA51B 4019",
+        "route": "10.1",
+        "link": "https://lokkate.tracknerd.io/live/link/6ceedb41966ddb524e1c2054a849b3bbe6ffb54d",
+        "hash": "6ceedb41966ddb524e1c2054a849b3bbe6ffb54d",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 31,
+        "vehicle": "KA51B 4016",
+        "route": "10A",
+        "link": "https://lokkate.tracknerd.io/live/link/5bce777849fe8f9f7cee5f4b1fdc198c0c0cb4fd",
+        "hash": "5bce777849fe8f9f7cee5f4b1fdc198c0c0cb4fd",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 32,
+        "vehicle": "KA51C 3837",
+        "route": "10A.1",
+        "link": "https://lokkate.tracknerd.io/live/link/4c0066e1b8be3ae79c55e51edc57c0343204c346",
+        "hash": "4c0066e1b8be3ae79c55e51edc57c0343204c346",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 33,
+        "vehicle": "KA51C 5122",
+        "route": "10A.2",
+        "link": "https://lokkate.tracknerd.io/live/link/d841013f8e73f7fc1b38bb4fa5eadd6e9052e4ff",
+        "hash": "d841013f8e73f7fc1b38bb4fa5eadd6e9052e4ff",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 34,
+        "vehicle": "CH347772",
+        "route": "10A.3",
+        "link": "https://lokkate.tracknerd.io/live/link/f53e4038c9cf1f5962309450cbf4ee0b4668ca99",
+        "hash": "f53e4038c9cf1f5962309450cbf4ee0b4668ca99",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 35,
+        "vehicle": "KA05AN 9296",
+        "route": "10B",
+        "link": "https://lokkate.tracknerd.io/live/link/077651d11d0aaa2b6b1a55ba843d21044495bd00",
+        "hash": "077651d11d0aaa2b6b1a55ba843d21044495bd00",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 36,
+        "vehicle": "KA01AC 3564",
+        "route": "10C",
+        "link": "https://lokkate.tracknerd.io/live/link/ef79e536475d011b5cbd23ef30e32ffcc3a5e246",
+        "hash": "ef79e536475d011b5cbd23ef30e32ffcc3a5e246",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 37,
+        "vehicle": "KA51AH 2283",
+        "route": "10C.1",
+        "link": "https://lokkate.tracknerd.io/live/link/c88aec04e9b11c237209b67f43d361cce050fc92",
+        "hash": "c88aec04e9b11c237209b67f43d361cce050fc92",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 38,
+        "vehicle": "KA51B 4061",
+        "route": "10C.2",
+        "link": "https://lokkate.tracknerd.io/live/link/e22c785f44ee2967c724bea474dcac13d65e7490",
+        "hash": "e22c785f44ee2967c724bea474dcac13d65e7490",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 39,
+        "vehicle": "KA51D 4045",
+        "route": "10C.3",
+        "link": "https://lokkate.tracknerd.io/live/link/c0dbaab7500e3197cd8de3e8187f769265767622",
+        "hash": "c0dbaab7500e3197cd8de3e8187f769265767622",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 40,
+        "vehicle": "KA05AN 9872",
+        "route": "10D",
+        "link": "https://lokkate.tracknerd.io/live/link/5df526779c2192453679d825c7af417c63163e57",
+        "hash": "5df526779c2192453679d825c7af417c63163e57",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 41,
+        "vehicle": "KA51B 3953",
+        "route": "10E",
+        "link": "https://lokkate.tracknerd.io/live/link/3bec2e1046f1641af47217f2e9b41518a36d8f53",
+        "hash": "3bec2e1046f1641af47217f2e9b41518a36d8f53",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 42,
+        "vehicle": "KA51B 4012",
+        "route": "10F",
+        "link": "https://lokkate.tracknerd.io/live/link/bcd95fd15f4e38808f589383469396c1fca1bbdd",
+        "hash": "bcd95fd15f4e38808f589383469396c1fca1bbdd",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 43,
+        "vehicle": "KA51AF 0059",
+        "route": "10G",
+        "link": "https://lokkate.tracknerd.io/live/link/f7e5f23bc86969f640a4daefead701d4faa353e5",
+        "hash": "f7e5f23bc86969f640a4daefead701d4faa353e5",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 44,
+        "vehicle": "KA51B 4020",
+        "route": "10H",
+        "link": "https://lokkate.tracknerd.io/live/link/8cec729d07509ce2f08bcc90aa7bd99a45af1a42",
+        "hash": "8cec729d07509ce2f08bcc90aa7bd99a45af1a42",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 45,
+        "vehicle": "KA51B 8670",
+        "route": "10J",
+        "link": "https://lokkate.tracknerd.io/live/link/a1f2c173c3b0f0546c2f1a81af18b50d4d34b48f",
+        "hash": "a1f2c173c3b0f0546c2f1a81af18b50d4d34b48f",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 46,
+        "vehicle": "KA51B 9587",
+        "route": "11",
+        "link": "https://lokkate.tracknerd.io/live/link/2219251b7403ccc4881d4fcfeb89ee0db67584ed",
+        "hash": "2219251b7403ccc4881d4fcfeb89ee0db67584ed",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 47,
+        "vehicle": "KA51AJ 1566",
+        "route": "11A",
+        "link": "https://lokkate.tracknerd.io/live/link/da89c3f67d9b3ebde8e5c6ac4118bb4f8567342a",
+        "hash": "da89c3f67d9b3ebde8e5c6ac4118bb4f8567342a",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 48,
+        "vehicle": "KA02AN 2745",
+        "route": "12",
+        "link": "https://lokkate.tracknerd.io/live/link/dfa9b822e4671ad6daf81b856b8ede06118411f0",
+        "hash": "dfa9b822e4671ad6daf81b856b8ede06118411f0",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 49,
+        "vehicle": "KA02AN 2747",
+        "route": "13",
+        "link": "https://lokkate.tracknerd.io/live/link/f7a609c4b10381b5c591d4b7a6e9c87740889bad",
+        "hash": "f7a609c4b10381b5c591d4b7a6e9c87740889bad",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 50,
+        "vehicle": "KA02AN 2748",
+        "route": "13A",
+        "link": "https://lokkate.tracknerd.io/live/link/c6213042f73e93cbe16979b1823e4a74357f94a9",
+        "hash": "c6213042f73e93cbe16979b1823e4a74357f94a9",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 51,
+        "vehicle": "KA51AB 5081",
+        "route": "14",
+        "link": "https://lokkate.tracknerd.io/live/link/2051e67286e63427ec0b16a22cfaf0539ec0eb81",
+        "hash": "2051e67286e63427ec0b16a22cfaf0539ec0eb81",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 52,
+        "vehicle": "KA05AN 9885",
+        "route": "14A",
+        "link": "https://lokkate.tracknerd.io/live/link/379e68f07ec8bb9a7e96a26da70567650516e71c",
+        "hash": "379e68f07ec8bb9a7e96a26da70567650516e71c",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 53,
+        "vehicle": "KA51B 9035",
+        "route": "14B",
+        "link": "https://lokkate.tracknerd.io/live/link/45b774fcbff2094a9c1a9d5dff433873d04e2cdc",
+        "hash": "45b774fcbff2094a9c1a9d5dff433873d04e2cdc",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 54,
+        "vehicle": "KA02AN 2667",
+        "route": "14C",
+        "link": "https://lokkate.tracknerd.io/live/link/dcfd12f1cfa5314cc00c103bbb5398be885b75c1",
+        "hash": "dcfd12f1cfa5314cc00c103bbb5398be885b75c1",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 55,
+        "vehicle": "KA51B 4018",
+        "route": "15",
+        "link": "https://lokkate.tracknerd.io/live/link/368abd1ba25334751106325e3af77ba152f7e908",
+        "hash": "368abd1ba25334751106325e3af77ba152f7e908",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 56,
+        "vehicle": "KA51B 8668",
+        "route": "15A",
+        "link": "https://lokkate.tracknerd.io/live/link/d3b447167ebbfc032822180a5eee544925aefcfd",
+        "hash": "d3b447167ebbfc032822180a5eee544925aefcfd",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 57,
+        "vehicle": "KA51B 4013",
+        "route": "15B",
+        "link": "https://lokkate.tracknerd.io/live/link/0e4af2dbf137a8181bb99076a778f9301bd96b56",
+        "hash": "0e4af2dbf137a8181bb99076a778f9301bd96b56",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 58,
+        "vehicle": "KA05AN 9299",
+        "route": "15C",
+        "link": "https://lokkate.tracknerd.io/live/link/df6464502f9a70b9e2c98085bddbae45b3f8b997",
+        "hash": "df6464502f9a70b9e2c98085bddbae45b3f8b997",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 59,
+        "vehicle": "CH347638",
+        "route": "15D",
+        "link": "https://lokkate.tracknerd.io/live/link/0cd37f312f2936563144766a4e4c5ad036a9c414",
+        "hash": "0cd37f312f2936563144766a4e4c5ad036a9c414",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 60,
+        "vehicle": "KA05AN 9255",
+        "route": "15E",
+        "link": "https://lokkate.tracknerd.io/live/link/af909629aee1abcea49674e17641876da3295e33",
+        "hash": "af909629aee1abcea49674e17641876da3295e33",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 61,
+        "vehicle": "KA51B 8783",
+        "route": "16",
+        "link": "https://lokkate.tracknerd.io/live/link/270323de6a626526c2aaeed49a2bc74786dc48b6",
+        "hash": "270323de6a626526c2aaeed49a2bc74786dc48b6",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 62,
+        "vehicle": "KA51B 8671",
+        "route": "16A",
+        "link": "https://lokkate.tracknerd.io/live/link/847687e977027c8bf4efd806b3fdc1eee413ac0a",
+        "hash": "847687e977027c8bf4efd806b3fdc1eee413ac0a",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 63,
+        "vehicle": "KA51AF 0055",
+        "route": "17",
+        "link": "https://lokkate.tracknerd.io/live/link/db9e7ff28dad3035f0b1341ca9e88ca1cd65af43",
+        "hash": "db9e7ff28dad3035f0b1341ca9e88ca1cd65af43",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 64,
+        "vehicle": "KA05AN 9883",
+        "route": "17A",
+        "link": "https://lokkate.tracknerd.io/live/link/fed3f7498c592e9861ca4ceca72b7449d696e291",
+        "hash": "fed3f7498c592e9861ca4ceca72b7449d696e291",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 65,
+        "vehicle": "KA51AF 0056",
+        "route": "17B",
+        "link": "https://lokkate.tracknerd.io/live/link/3fafa204a7961895dd93fab5711a1e0822614b75",
+        "hash": "3fafa204a7961895dd93fab5711a1e0822614b75",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 66,
+        "vehicle": "CH577478",
+        "route": "18",
+        "link": "https://lokkate.tracknerd.io/live/link/f472278b46a674476096c9b90b51974ef679bfa3",
+        "hash": "f472278b46a674476096c9b90b51974ef679bfa3",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      },
+      {
+        "sl": 67,
+        "vehicle": "KA51B 4021",
+        "route": "18A",
+        "link": "https://lokkate.tracknerd.io/live/link/e9f4a70b1b6221ae95c3706727b6cc4c0df33510",
+        "hash": "e9f4a70b1b6221ae95c3706727b6cc4c0df33510",
+        "section": "1to12",
+        "sectionTitle": "Grades 1 to 12"
+      }
+    ]
+  },
+  {
+    "id": "kg",
+    "title": "KG Block",
+    "sheetName": "GPRS-KG BLOCK",
+    "badge": "KG Block",
+    "count": 25,
+    "buses": [
+      {
+        "sl": 1,
+        "vehicle": "KA51B 9030",
+        "route": "1A",
+        "link": "https://lokkate.tracknerd.io/live/link/ed2b869eba81b9fce496d5b07d9673e3c3a24d8b",
+        "hash": "ed2b869eba81b9fce496d5b07d9673e3c3a24d8b",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 2,
+        "vehicle": "KA51B 9035",
+        "route": "1B",
+        "link": "https://lokkate.tracknerd.io/live/link/45b774fcbff2094a9c1a9d5dff433873d04e2cdc",
+        "hash": "45b774fcbff2094a9c1a9d5dff433873d04e2cdc",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 3,
+        "vehicle": "KA51C 4679",
+        "route": "2",
+        "link": "https://lokkate.tracknerd.io/live/link/d0280a3cb52e626c421468bf73e69fcfd46763c6",
+        "hash": "d0280a3cb52e626c421468bf73e69fcfd46763c6",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 4,
+        "vehicle": "KA51B 8669",
+        "route": "2A",
+        "link": "https://lokkate.tracknerd.io/live/link/b861735f05aad538f793717b245c60cf36e9b601",
+        "hash": "b861735f05aad538f793717b245c60cf36e9b601",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 5,
+        "vehicle": "KA05AN 9885",
+        "route": "3",
+        "link": "https://lokkate.tracknerd.io/live/link/379e68f07ec8bb9a7e96a26da70567650516e71c",
+        "hash": "379e68f07ec8bb9a7e96a26da70567650516e71c",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 6,
+        "vehicle": "KA51AB 5081",
+        "route": "3A",
+        "link": "https://lokkate.tracknerd.io/live/link/2051e67286e63427ec0b16a22cfaf0539ec0eb81",
+        "hash": "2051e67286e63427ec0b16a22cfaf0539ec0eb81",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 7,
+        "vehicle": "KA05AN 9625",
+        "route": "6A",
+        "link": "https://lokkate.tracknerd.io/live/link/fa46c663fbf1ecf25deda11e0697bfc9bc40bff7",
+        "hash": "fa46c663fbf1ecf25deda11e0697bfc9bc40bff7",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 15,
+        "vehicle": "KA51C 4478",
+        "route": "7",
+        "link": "https://lokkate.tracknerd.io/live/link/f74c505a27b77827efbba1bbcba210457922d179",
+        "hash": "f74c505a27b77827efbba1bbcba210457922d179",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 26,
+        "vehicle": "KA51B 9317",
+        "route": "7A",
+        "link": "https://lokkate.tracknerd.io/live/link/b45ab0e793fc100b83a644182d73cba78a828b36",
+        "hash": "b45ab0e793fc100b83a644182d73cba78a828b36",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 10,
+        "vehicle": "KA51AF 0055",
+        "route": "7B",
+        "link": "https://lokkate.tracknerd.io/live/link/db9e7ff28dad3035f0b1341ca9e88ca1cd65af43",
+        "hash": "db9e7ff28dad3035f0b1341ca9e88ca1cd65af43",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 11,
+        "vehicle": "KA05AN 9883",
+        "route": "7C",
+        "link": "https://lokkate.tracknerd.io/live/link/fed3f7498c592e9861ca4ceca72b7449d696e291",
+        "hash": "fed3f7498c592e9861ca4ceca72b7449d696e291",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 12,
+        "vehicle": "KA51C 5123",
+        "route": "7I",
+        "link": "https://lokkate.tracknerd.io/live/link/229fe766cf78eda8f142ef0ea706af95564110e1",
+        "hash": "229fe766cf78eda8f142ef0ea706af95564110e1",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 13,
+        "vehicle": "KA05AN 9889",
+        "route": "9",
+        "link": "https://lokkate.tracknerd.io/live/link/22573717491660cc0eb89781083a4b0559df9d98",
+        "hash": "22573717491660cc0eb89781083a4b0559df9d98",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 14,
+        "vehicle": "CH347773",
+        "route": "10",
+        "link": "https://lokkate.tracknerd.io/live/link/8883de1f93dfb210b4558f1452cf5cda3fa3cef7",
+        "hash": "8883de1f93dfb210b4558f1452cf5cda3fa3cef7",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 15,
+        "vehicle": "KA05AN 9872",
+        "route": "10A",
+        "link": "https://lokkate.tracknerd.io/live/link/5df526779c2192453679d825c7af417c63163e57",
+        "hash": "5df526779c2192453679d825c7af417c63163e57",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 16,
+        "vehicle": "KA51B 9036",
+        "route": "10A.1",
+        "link": "https://lokkate.tracknerd.io/live/link/4c0066e1b8be3ae79c55e51edc57c0343204c346",
+        "hash": "4c0066e1b8be3ae79c55e51edc57c0343204c346",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 17,
+        "vehicle": "KA51B 9031",
+        "route": "10B",
+        "link": "https://lokkate.tracknerd.io/live/link/dc713a5e4fc007b19afb28a60ea3f27b496c7f80",
+        "hash": "dc713a5e4fc007b19afb28a60ea3f27b496c7f80",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 18,
+        "vehicle": "KA05AN 9886",
+        "route": "10C",
+        "link": "https://lokkate.tracknerd.io/live/link/57123cf1f242f0e9fced3e8def7c656d8ddd4fc3",
+        "hash": "57123cf1f242f0e9fced3e8def7c656d8ddd4fc3",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 19,
+        "vehicle": "KA05AN 9296",
+        "route": "10C.1",
+        "link": "https://lokkate.tracknerd.io/live/link/077651d11d0aaa2b6b1a55ba843d21044495bd00",
+        "hash": "077651d11d0aaa2b6b1a55ba843d21044495bd00",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 20,
+        "vehicle": "KA51B 4020",
+        "route": "11A",
+        "link": "https://lokkate.tracknerd.io/live/link/8cec729d07509ce2f08bcc90aa7bd99a45af1a42",
+        "hash": "8cec729d07509ce2f08bcc90aa7bd99a45af1a42",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 21,
+        "vehicle": "KA02AN 2667",
+        "route": "14C",
+        "link": "https://lokkate.tracknerd.io/live/link/dcfd12f1cfa5314cc00c103bbb5398be885b75c1",
+        "hash": "dcfd12f1cfa5314cc00c103bbb5398be885b75c1",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 22,
+        "vehicle": "KA51B 8668",
+        "route": "15A",
+        "link": "https://lokkate.tracknerd.io/live/link/d3b447167ebbfc032822180a5eee544925aefcfd",
+        "hash": "d3b447167ebbfc032822180a5eee544925aefcfd",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 48,
+        "vehicle": "KA02AN 2745",
+        "route": "15B",
+        "link": "https://lokkate.tracknerd.io/live/link/dfa9b822e4671ad6daf81b856b8ede06118411f0",
+        "hash": "dfa9b822e4671ad6daf81b856b8ede06118411f0",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 24,
+        "vehicle": "KA51B 8671",
+        "route": "16A",
+        "link": "https://lokkate.tracknerd.io/live/link/847687e977027c8bf4efd806b3fdc1eee413ac0a",
+        "hash": "847687e977027c8bf4efd806b3fdc1eee413ac0a",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      },
+      {
+        "sl": 25,
+        "vehicle": "CH-577478",
+        "route": "18",
+        "link": "https://lokkate.tracknerd.io/live/link/f74c505a27b77827efbba1bbcba210457922d179",
+        "hash": "f74c505a27b77827efbba1bbcba210457922d179",
+        "section": "kg",
+        "sectionTitle": "KG Block"
+      }
+    ]
+  }
+]

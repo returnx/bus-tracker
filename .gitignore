@@ -1,0 +1,16 @@
+# Android build artifacts and caches
+.gradle/
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/local.properties
+android/*.iml
+android/app/*.iml
+
+# Node dependencies
+node_modules/
+
+# OS metadata
+.DS_Store
+Thumbs.db

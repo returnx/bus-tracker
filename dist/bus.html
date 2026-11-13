@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lokkate Bus Tracker</title>
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bus Tracker">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface-bg: #151d2e;
+            --surface-card: #162032;
+            --panel-bg: rgba(15, 23, 42, 0.92);
+            --border-color: rgba(255, 255, 255, 0.09);
+            --border-hover: rgba(96, 165, 250, 0.45);
+            --primary-color: #3b82f6;
+            --primary-light: rgba(59, 130, 246, 0.16);
+            --primary-glow: rgba(59, 130, 246, 0.28);
+            --amber-color: #f59e0b;
+            --amber-light: rgba(245, 158, 11, 0.16);
+            --success-color: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.25);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(59, 130, 246, 0.35);
+            --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #appRoot {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* View switching */
+        .page-view {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .page-view.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ================= PAGE 1: BUS SELECTION LIST ================= */
+        #busListView {
+            background-color: var(--bg-color);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .app-header {
+            background: rgba(11, 15, 25, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 14px 20px;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            font-size: 30px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+            animation: gentleHop 3s ease-in-out infinite;
+        }
+
+        @keyframes gentleHop {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .fleet-stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #60a5fa;
+            white-space: nowrap;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+            animation: pulseDot 2s infinite;
+        }
+
+        @keyframes pulseDot {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        .list-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Search & Filter Component */
+        .search-filter-card {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .search-box-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .search-box-wrapper:focus-within {
+            background: #1e293b;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .search-icon {
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 15px;
+            color: #f8fafc;
+            outline: none;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .clear-search-btn {
+            background: #334155;
+            border: none;
+            color: #94a3b8;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .clear-search-btn:hover {
+            background: #475569;
+            color: #ffffff;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .filter-tab:hover {
+            background: #334155;
+            color: #f8fafc;
+        }
+
+        .filter-tab.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .filter-tab.active .tab-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        .tab-count {
+            background: rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        /* Recent Bus Card */
+        .recent-bus-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(16, 185, 129, 0.12) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            border-radius: 14px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .recent-bus-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .recent-star {
+            font-size: 20px;
+        }
+
+        .recent-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #60a5fa;
+        }
+
+        .recent-bus-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .recent-track-btn {
+            background: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .recent-track-btn:hover {
+            background: #2563eb;
+            transform: translateX(2px);
+        }
+
+        /* Sections Wrapper: The 2 Sections */
+        .sections-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .bus-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        #section-kg .section-header {
+            border-left-color: var(--amber-color);
+        }
+
+        .section-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 22px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .section-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 6px;
+            font-weight: 400;
+        }
+
+        .section-count-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: var(--primary-light);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-kg {
+            background: var(--amber-light);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Bus Cards Grid */
+        .bus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        /* Two-Row Bus Card (Compact: Route & Bus Number only) */
+        .bus-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bus-card:hover {
+            border-color: var(--border-hover);
+            background: #1c283f;
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .bus-card:active {
+            transform: translateY(0);
+            background: #192438;
+        }
+
+        /* Card Row 1: Route */
+        .bus-card-row-1 {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .bus-route-badge {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .route-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .route-number {
+            font-size: 20px;
+            font-weight: 800;
+            color: #60a5fa;
+            letter-spacing: -0.5px;
+        }
+
+        #section-kg .route-number {
+            color: #fbbf24;
+        }
+
+        /* Card Row 2: Bus Number */
+        .bus-card-row-2 {
+            display: flex;
+            align-items: center;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .bus-vehicle-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Empty search state */
+        .no-results-card {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            margin: 20px 0;
+            color: #f8fafc;
+        }
+
+        .no-results-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .no-results-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 6px;
+        }
+
+        .no-results-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .reset-search-btn {
+            background: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* ================= PAGE 2: BUS TRACKING VIEW ================= */
+        #busTrackingView {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        /* Tracking Top Bar */
+        .tracking-top-bar {
+            background: rgba(11, 15, 25, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+        }
+
+        .back-btn {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
+            padding: 8px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .back-btn:hover {
+            background: #334155;
+            color: #ffffff;
+            transform: translateX(-2px);
+        }
+
+        .back-arrow {
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        /* Wide Quick Switcher Dropdown */
+        .quick-switcher-container {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            max-width: 480px;
+            justify-content: flex-end;
+        }
+
+        .quick-bus-select {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            color: #f8fafc;
+            cursor: pointer;
+            outline: none;
+            width: 100%;
+            height: 40px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+
+        .quick-bus-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .quick-bus-select option,
+        .quick-bus-select optgroup {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Map Wrapper */
+        .map-wrapper {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background: #0b0f19;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            z-index: 1;
+            background: #0b0f19;
+        }
+
+        /* Leaflet zoom adjustment */
+        .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+            margin-bottom: 55px !important;
+        }
+
+        .leaflet-bar a {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .leaflet-bar a:hover {
+            background-color: #334155 !important;
+            color: #ffffff !important;
+        }
+
+        /* Floating glassmorphic widgets */
+        .overlay-panel {
+            position: absolute;
+            z-index: 1000;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Telemetry Dashboard Info Panel */
+        .dashboard-panel {
+            bottom: 80px; /* Moved down 15px */
+            left: 15px;
+            width: 165px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .vehicle-meta {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reg-no-badge {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            color: #f8fafc;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 3px;
+            border-radius: 50%;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #64748b;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            box-sizing: border-box;
+            transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .status-dot.active {
+            background: var(--success-color);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 8px var(--success-glow);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .stats-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 11px;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .stat-value.speed-val {
+            color: #60a5fa;
+            font-weight: 700;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            top: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 6px;
+        }
+
+        .control-btn {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .control-btn:hover {
+            background: #334155;
+            transform: scale(1.05);
+        }
+
+        .control-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+
+        /* Leaflet Custom Pulsing Marker styles */
+        .custom-leaflet-marker {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bus-marker-image {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .home-marker-image {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        .marker-pulse {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(59, 130, 246, 0.45);
+            animation: markerPulse 1.8s infinite ease-out;
+            z-index: 1;
+        }
+
+        .marker-pulse-home {
+            background-color: rgba(16, 185, 129, 0.45);
+        }
+
+        @keyframes markerPulse {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2.0); opacity: 0; }
+        }
+
+        /* Leaflet popup styling in dark mode */
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        .info-window-content {
+            color: #f8fafc;
+            padding: 4px;
+            font-family: var(--font-family);
+        }
+
+        .info-window-content h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: #f8fafc;
+        }
+
+        .info-window-content p {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* Loading / Error Banner Overlay */
+        .state-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.96);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            transition: opacity 0.5s ease;
+            color: #f8fafc;
+        }
+
+        .state-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-ring {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(59, 130, 246, 0.15);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .state-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .state-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 400px;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 20px;
+        }
+
+        .error-retry-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #f87171;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .error-retry-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .hash-input {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            outline: none;
+            color: #f8fafc;
+            font-size: 13px;
+            padding: 8px 12px;
+            flex-grow: 1;
+            font-family: inherit;
+            border-radius: 6px;
+        }
+
+        .track-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            outline: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* Responsive Mobile Layout */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 10px 14px;
+            }
+            .brand-title {
+                font-size: 17px;
+            }
+            .list-content {
+                padding: 10px;
+                gap: 14px;
+            }
+            /* 2 columns on mobile format */
+            .bus-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .bus-card {
+                padding: 10px 12px;
+                border-radius: 10px;
+                gap: 4px;
+            }
+            .route-number {
+                font-size: 18px;
+            }
+            .bus-vehicle-info {
+                font-size: 12px;
+            }
+            /* Bottom widget: moved 15px down */
+            .dashboard-panel {
+                bottom: 75px;
+                left: 10px;
+                width: 150px;
+                padding: 6px 8px;
+            }
+            .controls-panel {
+                top: 10px;
+                right: 10px;
+            }
+            .tracking-top-bar {
+                padding: 8px 12px;
+            }
+            .quick-switcher-container {
+                max-width: none;
+                flex: 1;
+            }
+            .quick-bus-select {
+                max-width: none;
+                width: 100%;
+                font-size: 12px;
+                padding: 6px 8px;
+                height: 38px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="appRoot">
+        <!-- ================= PAGE 1: BUS SELECTION LIST ================= -->
+        <div id="busListView" class="page-view active">
+            <!-- Header bar -->
+            <header class="app-header">
+                <div class="header-container">
+                    <div class="brand">
+                        <span class="brand-icon">🚌</span>
+                        <div class="brand-info">
+                            <h1 class="brand-title">School Bus Tracker</h1>
+                            <p class="brand-subtitle">Real-time GPS tracking for school routes</p>
+                        </div>
+                    </div>
+                    <div class="fleet-stat-badge">
+                        <span class="live-dot"></span>
+                        <span id="totalBusesBadge">92 Buses</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="list-content">
+                <!-- Search and Filters Bar -->
+                <div class="search-filter-card">
+                    <div class="search-box-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="busSearchInput" class="search-input" placeholder="Search route (e.g. 7A, 10, 14) or bus number (e.g. 9317, KA51)..." autocomplete="off" spellcheck="false" />
+                        <button id="clearSearchBtn" class="clear-search-btn" title="Clear search" style="display: none;">✕</button>
+                    </div>
+
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All Routes <span class="tab-count" id="countAll">92</span></button>
+                        <button class="filter-tab" data-filter="1to12">🏫 Grades 1 to 12 <span class="tab-count" id="count1to12">67</span></button>
+                        <button class="filter-tab" data-filter="kg">🧸 KG Block <span class="tab-count" id="countKg">25</span></button>
+                    </div>
+                </div>
+
+                <!-- Recent Bus Banner (if available) -->
+                <div id="recentBusContainer" style="display: none;">
+                    <div class="recent-bus-card" id="recentBusCard">
+                        <div class="recent-bus-left">
+                            <span class="recent-star">⭐</span>
+                            <div>
+                                <div class="recent-label">Recently Tracked</div>
+                                <div class="recent-bus-name" id="recentBusName">Route 7A • KA51B 9317</div>
+                            </div>
+                        </div>
+                        <button class="recent-track-btn" id="recentTrackBtn">Track Now →</button>
+                    </div>
+                </div>
+
+                <!-- The 2 Sections Container -->
+                <div class="sections-wrapper" id="sectionsContainer">
+                    <!-- Section 1: Grades 1 to 12 -->
+                    <section class="bus-section" id="section-1to12">
+                        <div class="section-header">
+                            <div class="section-header-title">
+                                <span class="section-icon">🏫</span>
+                                <div>
+                                    <h2 class="section-title">Grades 1 to 12</h2>
+                                    <span class="section-subtitle">GPRS-1TO12 Sheet</span>
+                                </div>
+                            </div>
+                            <span class="section-count-badge" id="badge-1to12">67 Buses</span>
+                        </div>
+                        <div class="bus-grid" id="grid-1to12">
+                            <!-- Cards inserted dynamically -->
+                        </div>
+                    </section>
+
+                    <!-- Section 2: KG Block -->
+                    <section class="bus-section" id="section-kg">
+                        <div class="section-header">
+                            <div class="section-header-title">
+                                <span class="section-icon">🧸</span>
+                                <div>
+                                    <h2 class="section-title">KG Block</h2>
+                                    <span class="section-subtitle">GPRS-KG BLOCK Sheet</span>
+                                </div>
+                            </div>
+                            <span class="section-count-badge badge-kg" id="badge-kg">25 Buses</span>
+                        </div>
+                        <div class="bus-grid" id="grid-kg">
+                            <!-- Cards inserted dynamically -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Empty Search Results State -->
+                <div id="noResultsState" class="no-results-card" style="display: none;">
+                    <div class="no-results-icon">🔍</div>
+                    <h3>No buses found</h3>
+                    <p id="noResultsText">No routes or vehicle numbers match your search.</p>
+                    <button id="resetSearchBtn" class="reset-search-btn">Reset Search</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- ================= PAGE 2: BUS TRACKING VIEW ================= -->
+        <div id="busTrackingView" class="page-view">
+            <!-- Tracking Top Bar with Back Button and Wide Switcher -->
+            <header class="tracking-top-bar">
+                <button id="backToListBtn" class="back-btn" title="Back to bus list">
+                    <span class="back-arrow">←</span>
+                    <span class="back-text">Bus List</span>
+                </button>
+
+                <!-- Wide Quick Switcher Dropdown -->
+                <div class="quick-switcher-container">
+                    <select id="quickBusSelect" class="quick-bus-select" title="Switch Bus">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+            </header>
+
+            <!-- Map View Container -->
+            <div class="map-wrapper">
+                <div id="map"></div>
+
+                <!-- Telemetry Dashboard Info Panel -->
+                <div class="overlay-panel dashboard-panel">
+                    <div class="vehicle-meta">
+                        <div class="reg-no-badge" id="regNoBadge">-</div>
+                        <div class="bus-type-lbl" style="display: none;">
+                            <span id="vehicleTypeBadge">School Bus</span>
+                        </div>
+                        <div class="status-badge" title="Ignition / Movement Status">
+                            <div class="status-dot" id="ignitionStatusDot"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Rows -->
+                    <div class="stats-rows">
+                        <div class="stat-row">
+                            <span class="stat-label">Ping:</span>
+                            <span class="stat-value" id="pingText" style="color: #60a5fa; font-weight: 600;">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Speed:</span>
+                            <span class="stat-value speed-val" id="speedText">0 km/h</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Signal:</span>
+                            <span class="stat-value" id="signalText">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Controls -->
+                <div class="overlay-panel controls-panel">
+                    <button class="control-btn" id="recenterBtn" title="Recenter Map on Bus">🎯</button>
+                    <button class="control-btn" id="homeBtn" title="Find / Recenter My Home">🏠</button>
+                    <button class="control-btn active" id="autopanBtn" title="Toggle Auto-Center Mode">🔒</button>
+                    <button class="control-btn" id="clearTrailBtn" title="Clear Route History">🧹</button>
+                </div>
+
+                <!-- Loading / Error overlay state -->
+                <div class="state-overlay" id="stateOverlay">
+                    <div class="loader-ring" id="overlayLoader"></div>
+                    <div class="state-title" id="overlayTitle">Fetching Location</div>
+                    <div class="state-desc" id="overlayDesc">Contacting the server and resolving the bus share credentials...</div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center;">
+                        <button class="error-retry-btn" id="retryBtn" style="display: none;">Retry Connection</button>
+                        <button class="error-retry-btn" id="overlayBackBtn" style="background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #60a5fa;">← Choose Another Bus</button>
+                        <button class="error-retry-btn" id="manualModeBtn" style="display: none; background: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #60a5fa;">Manual Input</button>
+                    </div>
+
+                    <!-- Manual Override Form -->
+                    <div id="manualForm" style="display: none; margin-top: 20px; background: #151d2e; border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; width: 320px; flex-direction: column; gap: 12px;">
+                        <h4 style="font-size: 14px; font-weight: 600; text-align: center; margin-bottom: 4px; color: #f8fafc;">Manual Telemetry Bypass</h4>
+                        <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 8px;">Enter vehicle details if CORS blocks the server API validation.</p>
+                        <input type="text" id="manualVehicleId" class="hash-input" placeholder="Vehicle ID (e.g. 4881)" />
+                        <input type="text" id="manualRegNo" class="hash-input" placeholder="Reg Number (e.g. KA-51-B-9317)" />
+                        <button id="manualSubmitBtn" class="track-btn" style="width: 100%; margin-top: 4px;">Start Tracking</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bus Dataset Import -->
+    <script src="buses-data.js"></script>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <script>
+        // ================= APPLICATION STATE =================
+        let allSections = typeof BUS_DATA !== 'undefined' ? BUS_DATA : [];
+        let allBusesFlat = [];
+        let busByHash = {};
+        let currentHash = null;
+        let activeBusInfo = null;
+
+        // Flatten and index buses
+        function indexBuses() {
+            allBusesFlat = [];
+            busByHash = {};
+            allSections.forEach(section => {
+                section.buses.forEach(b => {
+                    allBusesFlat.push(b);
+                    if (b.hash) {
+                        busByHash[b.hash] = b;
+                    }
+                });
+            });
+            const badge = document.getElementById('totalBusesBadge');
+            if (badge) badge.textContent = `${allBusesFlat.length} Buses Available`;
+            const countAll = document.getElementById('countAll');
+            if (countAll) countAll.textContent = allBusesFlat.length;
+        }
+
+        // ================= MAP & TRACKING STATE =================
+        let map = null;
+        let busMarker = null;
+        let busPathTrail = null;
+        let pathCoordinates = [];
+        let autoPanEnabled = true;
+        let updateTimer = null;
+        let activeTrackingSessionId = 0;
+        let markerAnimationId = null;
+        let currentVehicleDetails = null;
+
+        // User Home Location State
+        let userHomeLocation = null;
+        let userHomeMarker = null;
+        let userHomeAccuracyCircle = null;
+        let userLocationWatchId = null;
+
+        let leafletTileLayer = null;
+
+        // ================= RENDER BUS SECTIONS =================
+        function renderBusList(searchFilter = '', categoryFilter = 'all') {
+            const query = (searchFilter || '').trim().toLowerCase();
+            const sectionsContainer = document.getElementById('sectionsContainer');
+            const noResultsState = document.getElementById('noResultsState');
+            let totalRendered = 0;
+
+            allSections.forEach(section => {
+                const sectionEl = document.getElementById(`section-${section.id}`);
+                const gridEl = document.getElementById(`grid-${section.id}`);
+                const countBadge = document.getElementById(`badge-${section.id}`);
+                
+                if (!sectionEl || !gridEl) return;
+
+                // Check category filter
+                if (categoryFilter !== 'all' && categoryFilter !== section.id) {
+                    sectionEl.style.display = 'none';
+                    return;
+                }
+
+                // Filter buses
+                const matchingBuses = section.buses.filter(b => {
+                    if (!query) return true;
+                    return (
+                        b.route.toLowerCase().includes(query) ||
+                        b.vehicle.toLowerCase().includes(query) ||
+                        `route ${b.route}`.toLowerCase().includes(query)
+                    );
+                });
+
+                if (matchingBuses.length === 0) {
+                    sectionEl.style.display = 'none';
+                } else {
+                    sectionEl.style.display = 'flex';
+                    totalRendered += matchingBuses.length;
+                    if (countBadge) {
+                        countBadge.textContent = query 
+                            ? `${matchingBuses.length} of ${section.buses.length}` 
+                            : `${section.buses.length} Buses`;
+                    }
+
+                    // Render cards with 2 rows layout: Row 1 = Route, Row 2 = Bus Number
+                    gridEl.innerHTML = matchingBuses.map(bus => `
+                        <div class="bus-card" onclick="selectAndTrackBus('${bus.hash}')">
+                            <!-- Row 1: Route Number -->
+                            <div class="bus-card-row-1">
+                                <div class="bus-route-badge">
+                                    <span class="route-label">Route</span>
+                                    <span class="route-number">${bus.route}</span>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Bus Number -->
+                            <div class="bus-card-row-2">
+                                <div class="bus-vehicle-info">
+                                    <span class="bus-icon">🚌</span>
+                                    <span class="vehicle-no">${bus.vehicle}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            });
+
+            if (totalRendered === 0) {
+                sectionsContainer.style.display = 'none';
+                noResultsState.style.display = 'block';
+                const noResultsText = document.getElementById('noResultsText');
+                if (noResultsText) {
+                    noResultsText.textContent = `No buses found matching "${searchFilter}".`;
+                }
+            } else {
+                sectionsContainer.style.display = 'flex';
+                noResultsState.style.display = 'none';
+            }
+        }
+
+        // ================= POPULATE QUICK SWITCHER =================
+        function populateQuickSwitcher() {
+            const selectEl = document.getElementById('quickBusSelect');
+            if (!selectEl) return;
+
+            let html = '<option value="" disabled>Select / Switch Bus...</option>';
+            allSections.forEach(section => {
+                html += `<optgroup label="${section.title} (${section.buses.length})">`;
+                section.buses.forEach(b => {
+                    html += `<option value="${b.hash}">Route ${b.route} &bull; ${b.vehicle}</option>`;
+                });
+                html += `</optgroup>`;
+            });
+            selectEl.innerHTML = html;
+
+            selectEl.addEventListener('change', (e) => {
+                const newHash = e.target.value;
+                if (newHash) {
+                    selectAndTrackBus(newHash);
+                }
+            });
+        }
+
+        // ================= RECENT BUS HANDLER =================
+        function checkRecentBus() {
+            try {
+                const recent = localStorage.getItem('last_tracked_bus');
+                if (recent) {
+                    const busInfo = JSON.parse(recent);
+                    if (busInfo && busInfo.hash) {
+                        const container = document.getElementById('recentBusContainer');
+                        const nameEl = document.getElementById('recentBusName');
+                        const btn = document.getElementById('recentTrackBtn');
+                        if (container && nameEl && btn) {
+                            nameEl.textContent = `Route ${busInfo.route} • ${busInfo.vehicle} (${busInfo.sectionTitle || 'School Bus'})`;
+                            btn.onclick = () => selectAndTrackBus(busInfo.hash);
+                            container.style.display = 'block';
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // ================= ROUTING & VIEW NAVIGATION =================
+        function showView(viewId) {
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            const activeView = document.getElementById(viewId);
+            if (activeView) {
+                activeView.classList.add('active');
+            }
+        }
+
+        function stopCurrentTracking() {
+            activeTrackingSessionId++;
+            if (updateTimer) {
+                clearInterval(updateTimer);
+                updateTimer = null;
+            }
+            if (markerAnimationId) {
+                cancelAnimationFrame(markerAnimationId);
+                markerAnimationId = null;
+            }
+            stopWatchingUserLocation();
+        }
+
+        function navigateToList() {
+            stopCurrentTracking();
+            currentHash = null;
+            activeBusInfo = null;
+            pathCoordinates = [];
+            if (busPathTrail) {
+                busPathTrail.setLatLngs([]);
+            }
+            showView('busListView');
+            document.title = 'Lokkate Bus Tracker - Select a Bus';
+            // Update URL without reloading
+            if (window.location.hash.startsWith('#/track/')) {
+                history.pushState(null, '', window.location.pathname);
+            }
+        }
+
+        function selectAndTrackBus(hash) {
+            if (!hash) return;
+            // Prevent duplicate kickoff if already tracking this bus
+            if (currentHash === hash && document.getElementById('busTrackingView').classList.contains('active')) {
+                return;
+            }
+            currentHash = hash;
+
+            const bus = busByHash[hash];
+            activeBusInfo = bus;
+
+            // Save to recent
+            if (bus) {
+                try {
+                    localStorage.setItem('last_tracked_bus', JSON.stringify(bus));
+                } catch(e) {}
+            }
+
+            // Sync switcher value
+            const selectEl = document.getElementById('quickBusSelect');
+            if (selectEl) selectEl.value = hash;
+
+            // Show Tracking View
+            showView('busTrackingView');
+            
+            // Set URL hash safely
+            if (window.location.hash !== `#/track/${hash}`) {
+                window.location.hash = `#/track/${hash}`;
+            }
+            
+            // Update title
+            document.title = bus ? `Tracking Route ${bus.route} (${bus.vehicle}) - Lokkate` : 'Tracking Bus';
+
+            // Start polling location
+            startTracking(hash);
+
+            // Start watching dynamic user location for Home marker
+            startWatchingUserLocation(false);
+
+            // Invalidate map size so Leaflet resizes correctly when container becomes visible
+            setTimeout(() => {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 150);
+        }
+
+        // ================= LEAFLET MAP IMPLEMENTATION =================
+        function initMap(lat, lng) {
+            if (map) {
+                // If map already exists, reset marker & trail to new live position
+                pathCoordinates = [{ lat, lng }];
+                if (busPathTrail) busPathTrail.setLatLngs([[lat, lng]]);
+                if (busMarker) busMarker.setLatLng([lat, lng]);
+                map.setView([lat, lng], 16);
+                if (userHomeLocation) {
+                    updateUserHomeMarker(userHomeLocation.lat, userHomeLocation.lng, userHomeLocation.accuracy);
+                }
+                return;
+            }
+            initLeafletMap(lat, lng);
+        }
+
+        function initLeafletMap(lat, lng) {
+            const defaultLocation = [lat || 12.9716, lng || 77.5946];
+            const schoolBusIcon = encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+                    <defs>
+                        <linearGradient id="body" x1="16" x2="80" y1="20" y2="74" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#ffd84d"/>
+                            <stop offset="1" stop-color="#f59e0b"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M18 30c0-7 6-13 13-13h34c7 0 13 6 13 13v36c0 5-4 9-9 9H27c-5 0-9-4-9-9V30z" fill="url(#body)" stroke="#7c2d12" stroke-width="4"/>
+                    <path d="M25 33c0-4 3-7 7-7h32c4 0 7 3 7 7v9H25v-9z" fill="#1f2937"/>
+                    <path d="M30 30h15v10H30zM51 30h15v10H51z" fill="#dbeafe"/>
+                    <path d="M25 48h46v10H25z" fill="#111827"/>
+                    <path d="M30 51h8M44 51h8M58 51h8" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="33" cy="75" r="8" fill="#111827"/>
+                    <circle cx="63" cy="75" r="8" fill="#111827"/>
+                    <circle cx="33" cy="75" r="3" fill="#e5e7eb"/>
+                    <circle cx="63" cy="75" r="3" fill="#e5e7eb"/>
+                    <path d="M31 63h34" stroke="#92400e" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="25" cy="61" r="3" fill="#fee2e2"/>
+                    <circle cx="71" cy="61" r="3" fill="#fee2e2"/>
+                </svg>
+            `);
+            
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: true
+            }).setView(defaultLocation, 16);
+
+            L.control.zoom({
+                position: 'bottomright'
+            }).addTo(map);
+
+            leafletTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Create Polyline trail
+            const leafletCoords = pathCoordinates.map(c => [c.lat, c.lng]);
+            busPathTrail = L.polyline(leafletCoords, {
+                color: '#3b82f6',
+                opacity: 0.85,
+                weight: 4
+            }).addTo(map);
+
+            // Bus marker
+            const pulsingIcon = L.divIcon({
+                className: 'custom-leaflet-marker',
+                html: `<div class="marker-pulse"></div><img class="bus-marker-image" src="data:image/svg+xml,${schoolBusIcon}" alt="School bus">`,
+                iconSize: [46, 46],
+                iconAnchor: [23, 38],
+                popupAnchor: [0, -34]
+            });
+
+            busMarker = L.marker(defaultLocation, { icon: pulsingIcon }).addTo(map);
+
+            busMarker.bindPopup(`
+                <div class="info-window-content">
+                    <h4 id="iw-regNo-leaflet">Bus</h4>
+                    <p id="iw-status-leaflet">Stopped</p>
+                </div>
+            `);
+
+            busMarker.on('click', () => {
+                setTimeout(() => {
+                    const elReg = document.getElementById('iw-regNo-leaflet');
+                    const elStatus = document.getElementById('iw-status-leaflet');
+                    if (elReg && currentVehicleDetails) {
+                        elReg.textContent = currentVehicleDetails.registrationNumber;
+                    }
+                    if (elStatus && currentVehicleDetails) {
+                        elStatus.textContent = currentVehicleDetails.statusStr || (currentVehicleDetails.ignitionStatus ? "Moving" : "Stopped");
+                    }
+                }, 50);
+            });
+
+            // Restore user home marker if known
+            if (userHomeLocation) {
+                updateUserHomeMarker(userHomeLocation.lat, userHomeLocation.lng, userHomeLocation.accuracy);
+            }
+        }
+
+
+        // ================= USER HOME LOCATION & MARKER =================
+        function getHomeSvg() {
+            return encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+                    <defs>
+                        <linearGradient id="roofGrad" x1="16" x2="80" y1="12" y2="48" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#f87171"/>
+                            <stop offset="1" stop-color="#dc2626"/>
+                        </linearGradient>
+                        <linearGradient id="wallGrad" x1="20" x2="76" y1="44" y2="84" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#ffffff"/>
+                            <stop offset="1" stop-color="#f1f5f9"/>
+                        </linearGradient>
+                        <linearGradient id="doorGrad" x1="40" x2="56" y1="56" y2="84" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#d97706"/>
+                            <stop offset="1" stop-color="#b45309"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M64 24h10v18H64z" fill="#991b1b" stroke="#7f1d1d" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M62 21h14v5H62z" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2" stroke-linejoin="round"/>
+                    <rect x="22" y="44" width="52" height="40" rx="4" fill="url(#wallGrad)" stroke="#334155" stroke-width="4"/>
+                    <path d="M48 14L12 45h14v0h44v0h14L48 14z" fill="url(#roofGrad)" stroke="#7f1d1d" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+                    <path d="M41 84V60c0-3.8 3.1-7 7-7s7 3.2 7 7v24H41z" fill="url(#doorGrad)" stroke="#78350f" stroke-width="3"/>
+                    <circle cx="51.5" cy="71" r="2" fill="#fef08a"/>
+                    <rect x="28" y="52" width="10" height="12" rx="2" fill="#38bdf8" stroke="#1e293b" stroke-width="2.5"/>
+                    <path d="M33 52v12M28 58h10" stroke="#0f172a" stroke-width="1.8"/>
+                    <rect x="58" y="52" width="10" height="12" rx="2" fill="#38bdf8" stroke="#1e293b" stroke-width="2.5"/>
+                    <path d="M63 52v12M58 58h10" stroke="#0f172a" stroke-width="1.8"/>
+                    <path d="M16 84h64" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            `);
+        }
+
+        function updateUserHomeMarker(lat, lng, acc = 0) {
+            if (!map) return;
+
+            const homePulsingIcon = L.divIcon({
+                className: 'custom-leaflet-marker',
+                html: `<div class="marker-pulse marker-pulse-home"></div><img class="home-marker-image" src="data:image/svg+xml,${getHomeSvg()}" alt="My Home">`,
+                iconSize: [40, 40],
+                iconAnchor: [20, 36],
+                popupAnchor: [0, -32]
+            });
+
+            if (!userHomeMarker) {
+                userHomeMarker = L.marker([lat, lng], {
+                    icon: homePulsingIcon,
+                    zIndexOffset: 600
+                }).addTo(map);
+
+                userHomeMarker.bindPopup(`
+                    <div class="info-window-content">
+                        <h4 style="color: #60a5fa; display: flex; align-items: center; gap: 4px;">🏠 My Home</h4>
+                        <p style="margin-top: 3px; color: #cbd5e1;">Your Live Location</p>
+                    </div>
+                `);
+            } else {
+                userHomeMarker.setLatLng([lat, lng]);
+            }
+
+            if (acc > 0 && acc < 500) {
+                if (!userHomeAccuracyCircle) {
+                    userHomeAccuracyCircle = L.circle([lat, lng], {
+                        radius: acc,
+                        color: '#10b981',
+                        fillColor: '#10b981',
+                        fillOpacity: 0.08,
+                        weight: 1,
+                        interactive: false
+                    }).addTo(map);
+                } else {
+                    userHomeAccuracyCircle.setLatLng([lat, lng]);
+                    userHomeAccuracyCircle.setRadius(acc);
+                }
+            }
+        }
+
+        function startWatchingUserLocation(centerOnHome = false) {
+            if (!navigator.geolocation) {
+                console.warn("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            let firstCenterDone = !centerOnHome;
+
+            if (userLocationWatchId !== null) {
+                if (centerOnHome && userHomeLocation && map) {
+                    map.setView([userHomeLocation.lat, userHomeLocation.lng], 16, { animate: true });
+                    if (userHomeMarker) userHomeMarker.openPopup();
+                }
+                return;
+            }
+
+            userLocationWatchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const acc = pos.coords.accuracy || 0;
+                    userHomeLocation = { lat, lng, accuracy: acc };
+
+                    try {
+                        localStorage.setItem('user_home_location', JSON.stringify({ lat, lng, accuracy: acc }));
+                    } catch(e) {}
+
+                    updateUserHomeMarker(lat, lng, acc);
+
+                    if (!firstCenterDone && map) {
+                        map.setView([lat, lng], 16, { animate: true });
+                        if (userHomeMarker) userHomeMarker.openPopup();
+                        firstCenterDone = true;
+                    }
+                },
+                (err) => {
+                    console.warn("Geolocation watch error / denied:", err.message);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 3000
+                }
+            );
+        }
+
+        function stopWatchingUserLocation() {
+            if (userLocationWatchId !== null && navigator.geolocation) {
+                navigator.geolocation.clearWatch(userLocationWatchId);
+                userLocationWatchId = null;
+            }
+        }
+
+        function getBusPosition() {
+            if (busMarker && map) {
+                const latlng = busMarker.getLatLng();
+                return { lat: latlng.lat, lng: latlng.lng };
+            }
+            if (pathCoordinates.length > 0) {
+                return pathCoordinates[pathCoordinates.length - 1];
+            }
+            return null;
+        }
+
+        function getDistance(p1, p2) {
+            const R = 6371e3;
+            const phi1 = p1.lat * Math.PI/180;
+            const phi2 = p2.lat * Math.PI/180;
+            const deltaPhi = (p2.lat-p1.lat) * Math.PI/180;
+            const deltaLambda = (p2.lng-p1.lng) * Math.PI/180;
+
+            const a = Math.sin(deltaPhi/2) * Math.sin(deltaPhi/2) +
+                      Math.cos(phi1) * Math.cos(phi2) *
+                      Math.sin(deltaLambda/2) * Math.sin(deltaLambda/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Smoothly interpolate the bus marker position between GPS pings
+        function animateMarkerTo(targetLat, targetLng, duration = 2200) {
+            if (!busMarker) return;
+            const startPos = busMarker.getLatLng();
+            const startLat = startPos.lat;
+            const startLng = startPos.lng;
+
+            const dist = getDistance({ lat: startLat, lng: startLng }, { lat: targetLat, lng: targetLng });
+            
+            // If movement is negligible (< 0.2m) or is an extreme jump (> 1500m), set directly
+            if (dist < 0.2 || dist > 1500) {
+                busMarker.setLatLng([targetLat, targetLng]);
+                return;
+            }
+
+            if (markerAnimationId) {
+                cancelAnimationFrame(markerAnimationId);
+                markerAnimationId = null;
+            }
+
+            const startTime = performance.now();
+
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1.0);
+                
+                // Linear interpolation for constant vehicle movement
+                const curLat = startLat + (targetLat - startLat) * progress;
+                const curLng = startLng + (targetLng - startLng) * progress;
+                
+                if (busMarker) {
+                    busMarker.setLatLng([curLat, curLng]);
+                }
+
+                if (progress < 1.0) {
+                    markerAnimationId = requestAnimationFrame(step);
+                } else {
+                    markerAnimationId = null;
+                }
+            }
+
+            markerAnimationId = requestAnimationFrame(step);
+        }
+
+        // Smoothly interpolate the bus marker along multiple road waypoints
+        function animateMarkerAlongPath(pts, duration = 2200) {
+            if (!busMarker || !pts || pts.length === 0) return;
+            if (pts.length === 1) {
+                animateMarkerTo(pts[0].lat, pts[0].lng, duration);
+                return;
+            }
+
+            if (markerAnimationId) {
+                cancelAnimationFrame(markerAnimationId);
+                markerAnimationId = null;
+            }
+
+            // Calculate segment lengths and cumulative distance
+            const segDists = [];
+            let totalDist = 0;
+            for (let i = 0; i < pts.length - 1; i++) {
+                const d = getDistance(pts[i], pts[i+1]);
+                segDists.push(d);
+                totalDist += d;
+            }
+
+            if (totalDist < 0.5) {
+                busMarker.setLatLng([pts[pts.length - 1].lat, pts[pts.length - 1].lng]);
+                return;
+            }
+
+            const startTime = performance.now();
+
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1.0);
+                const targetDist = totalDist * progress;
+
+                let accum = 0;
+                let curLat = pts[pts.length - 1].lat;
+                let curLng = pts[pts.length - 1].lng;
+
+                for (let i = 0; i < segDists.length; i++) {
+                    if (accum + segDists[i] >= targetDist || i === segDists.length - 1) {
+                        const segFrac = segDists[i] > 0 ? (targetDist - accum) / segDists[i] : 1;
+                        curLat = pts[i].lat + (pts[i+1].lat - pts[i].lat) * segFrac;
+                        curLng = pts[i].lng + (pts[i+1].lng - pts[i].lng) * segFrac;
+                        break;
+                    }
+                    accum += segDists[i];
+                }
+
+                if (busMarker) {
+                    busMarker.setLatLng([curLat, curLng]);
+                }
+
+                if (progress < 1.0) {
+                    markerAnimationId = requestAnimationFrame(step);
+                } else {
+                    markerAnimationId = null;
+                }
+            }
+
+            markerAnimationId = requestAnimationFrame(step);
+        }
+
+        // Fetch road geometry between two points with detour safeguards
+        async function fetchRoadSegment(fromPos, toPos, sessionId) {
+            const straightDist = getDistance(fromPos, toPos);
+
+            // If distance is short (< 18m) or too large (> 1200m), direct segment is appropriate
+            if (straightDist < 18 || straightDist > 1200) {
+                return [toPos];
+            }
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+                const url = `https://router.project-osrm.org/route/v1/driving/${fromPos.lng},${fromPos.lat};${toPos.lng},${toPos.lat}?overview=full&geometries=geojson&continue_straight=true`;
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (sessionId !== activeTrackingSessionId) return [toPos];
+                if (!res.ok) return [toPos];
+
+                const data = await res.json();
+                if (sessionId !== activeTrackingSessionId) return [toPos];
+
+                if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                    const route = data.routes[0];
+                    const routeDist = route.distance || 0;
+
+                    // Detour Safeguard: reject U-turns or median loops that exceed 1.8x straight distance
+                    if (routeDist > 1.8 * straightDist) {
+                        return [toPos];
+                    }
+
+                    const rawCoords = route.geometry && route.geometry.coordinates;
+                    if (rawCoords && rawCoords.length > 0) {
+                        return rawCoords.map(c => ({ lat: c[1], lng: c[0] }));
+                    }
+                }
+            } catch (e) {
+                // Silently fallback to direct point on any network/timeout issue
+            }
+            return [toPos];
+        }
+
+        function showLoading(title, desc) {
+            document.getElementById('stateOverlay').classList.remove('hidden');
+            document.getElementById('overlayLoader').style.display = 'block';
+            document.getElementById('retryBtn').style.display = 'none';
+            document.getElementById('manualModeBtn').style.display = 'none';
+            document.getElementById('manualForm').style.display = 'none';
+            document.getElementById('overlayTitle').textContent = title || "Fetching Location";
+            document.getElementById('overlayDesc').textContent = desc || "Contacting the server...";
+        }
+
+        function showError(title, desc) {
+            document.getElementById('stateOverlay').classList.remove('hidden');
+            document.getElementById('overlayLoader').style.display = 'none';
+            document.getElementById('retryBtn').style.display = 'block';
+            document.getElementById('manualModeBtn').style.display = 'block';
+            document.getElementById('overlayTitle').textContent = title || "Connection Error";
+            document.getElementById('overlayDesc').textContent = desc || "Something went wrong.";
+        }
+
+        function hideOverlay() {
+            document.getElementById('stateOverlay').classList.add('hidden');
+            document.getElementById('manualForm').style.display = 'none';
+        }
+
+        // ================= TRACKING API & RTDB =================
+        async function startTracking(hash) {
+            stopCurrentTracking();
+            const sessionId = ++activeTrackingSessionId;
+            currentHash = hash;
+
+            // Reset trail for clean live tracking session (never load stale historical points)
+            pathCoordinates = [];
+            if (busPathTrail) {
+                busPathTrail.setLatLngs([]);
+            }
+
+            showLoading("Verifying Link", "Connecting to api.tracknerd.io to resolve the vehicle...");
+
+            try {
+                const apiRes = await fetch(`https://api.tracknerd.io/v1/link/live/${hash}`);
+                if (sessionId !== activeTrackingSessionId) return;
+
+                if (!apiRes.ok) {
+                    throw new Error(`API response status: ${apiRes.status}`);
+                }
+
+                const data = await apiRes.json();
+                if (sessionId !== activeTrackingSessionId) return;
+
+                if (!data || data.length === 0) {
+                    throw new Error("No vehicles are associated with this tracking link.");
+                }
+
+                const vehicleData = data[0].vehicle;
+                if (!vehicleData) {
+                    throw new Error("Vehicle node missing in response.");
+                }
+
+                // Update UI badge
+                document.getElementById('regNoBadge').innerHTML = `<span>🚌</span> ${vehicleData.registrationNumber}`;
+                document.getElementById('vehicleTypeBadge').textContent = vehicleData.type || "School Bus";
+
+                currentVehicleDetails = {
+                    id: vehicleData.id,
+                    registrationNumber: vehicleData.registrationNumber
+                };
+
+                // Poll location immediately
+                await pollLocation(vehicleData.id, vehicleData.registrationNumber, sessionId);
+                if (sessionId !== activeTrackingSessionId) return;
+
+                // Start periodic polling every 2.5 seconds (only for the active bus)
+                updateTimer = setInterval(() => {
+                    if (sessionId === activeTrackingSessionId) {
+                        pollLocation(vehicleData.id, vehicleData.registrationNumber, sessionId);
+                    }
+                }, 2500);
+
+            } catch (err) {
+                if (sessionId !== activeTrackingSessionId) return;
+                console.error("API Fetch error:", err);
+                showError("Tracking Link Invalid", err.message || "Failed to parse tracking credentials. The link may have expired or is incorrect.");
+            }
+        }
+
+        async function pollLocation(vehicleId, regNo, sessionId) {
+            if (sessionId !== activeTrackingSessionId) return;
+
+            try {
+                const url = `https://tracknerd-production-default-rtdb.firebaseio.com/${vehicleId}-${regNo}/location.json`;
+                const dbRes = await fetch(url);
+                if (sessionId !== activeTrackingSessionId) return;
+
+                if (!dbRes.ok) {
+                    throw new Error(`Database connection failed: ${dbRes.status}`);
+                }
+
+                const location = await dbRes.json();
+                if (sessionId !== activeTrackingSessionId) return;
+
+                if (!location || location.latitude === undefined || location.longitude === undefined) {
+                    throw new Error("Missing coordinates in database telemetry.");
+                }
+
+                hideOverlay();
+
+                const lat = Number(location.latitude);
+                const lng = Number(location.longitude);
+                const speed = Number(location.speed || 0);
+                const ignition = Boolean(location.ignitionStatus);
+                const hdop = location.gnssHDOP || 0;
+
+                // Determine accurate status string
+                let statusStr = "Stopped";
+                if (speed > 0) {
+                    statusStr = (location.status && location.status !== "Idle") ? location.status : "Moving";
+                } else if (ignition) {
+                    statusStr = "Idling";
+                } else {
+                    statusStr = location.status || "Stopped";
+                }
+
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                const pingTime = location.timestamp 
+                    ? new Date(location.timestamp).toLocaleTimeString('en-US', timeOptions) 
+                    : new Date().toLocaleTimeString('en-US', timeOptions);
+
+                // Update telemetry panel
+                const pingEl = document.getElementById('pingText');
+                const speedEl = document.getElementById('speedText');
+                const signalEl = document.getElementById('signalText');
+                if (pingEl) pingEl.textContent = pingTime;
+                if (speedEl) speedEl.textContent = `${speed} km/h`;
+                if (signalEl) signalEl.textContent = hdop;
+
+                const dot = document.getElementById('ignitionStatusDot');
+                if (dot) {
+                    if (speed > 0 || ignition) {
+                        dot.className = 'status-dot active';
+                        dot.title = `Ignition: On | Status: ${statusStr}`;
+                    } else {
+                        dot.className = 'status-dot';
+                        dot.title = `Ignition: Off | Status: ${statusStr}`;
+                    }
+                }
+
+                if (currentVehicleDetails) {
+                    currentVehicleDetails.ignitionStatus = (speed > 0 || ignition);
+                    currentVehicleDetails.statusStr = statusStr;
+                }
+
+
+                // Process position update
+                const newPos = { lat, lng };
+
+                if (!map) {
+                    pathCoordinates = [newPos];
+                    initMap(lat, lng);
+                } else if (pathCoordinates.length === 0) {
+                    pathCoordinates = [newPos];
+                    if (busMarker) busMarker.setLatLng([lat, lng]);
+                    if (busPathTrail) busPathTrail.setLatLngs([[lat, lng]]);
+                    if (autoPanEnabled) map.panTo([lat, lng], { animate: true, duration: 1.0 });
+                } else {
+                    const lastCoord = pathCoordinates[pathCoordinates.length - 1];
+                    const dist = getDistance(lastCoord, newPos);
+
+                    // Teleport / jump detection:
+                    // If distance > 1500m, reset trail to current pos
+                    if (dist > 1500) {
+                        console.log(`Large position change (${Math.round(dist)}m). Starting new trail.`);
+                        pathCoordinates = [newPos];
+                        if (busPathTrail) busPathTrail.setLatLngs([[lat, lng]]);
+                        if (busMarker) busMarker.setLatLng([lat, lng]);
+                        if (autoPanEnabled) map.panTo([lat, lng], { animate: true, duration: 1.0 });
+                    } else if ((speed > 0 && dist >= 2) || dist >= 6) {
+                        // Vehicle has moved:
+                        if (dist >= 18) {
+                            // Fetch road-snapped geometry around intersections & road curves
+                            const roadCoords = await fetchRoadSegment(lastCoord, newPos, sessionId);
+                            if (sessionId !== activeTrackingSessionId) return;
+
+                            roadCoords.forEach(pt => {
+                                const cur = pathCoordinates[pathCoordinates.length - 1];
+                                if (!cur || getDistance(cur, pt) > 1.5) {
+                                    pathCoordinates.push(pt);
+                                }
+                            });
+
+                            if (pathCoordinates.length > 3000) {
+                                pathCoordinates = pathCoordinates.slice(-3000);
+                            }
+                            if (busPathTrail) {
+                                busPathTrail.setLatLngs(pathCoordinates.map(c => [c.lat, c.lng]));
+                            }
+
+                            const markerPos = busMarker ? busMarker.getLatLng() : null;
+                            const animPts = markerPos ? [{ lat: markerPos.lat, lng: markerPos.lng }, ...roadCoords] : roadCoords;
+                            animateMarkerAlongPath(animPts, 2200);
+                        } else {
+                            // Short movement along street (< 18m)
+                            pathCoordinates.push(newPos);
+                            if (pathCoordinates.length > 3000) {
+                                pathCoordinates = pathCoordinates.slice(-3000);
+                            }
+                            if (busPathTrail) {
+                                busPathTrail.setLatLngs(pathCoordinates.map(c => [c.lat, c.lng]));
+                            }
+                            animateMarkerTo(lat, lng, 2200);
+                        }
+
+                        if (autoPanEnabled && map) {
+                            map.panTo([lat, lng], { animate: true, duration: 1.5 });
+                        }
+                    } else {
+                        // Stationary / idling micro-drift: ignore to prevent tangled lines
+                    }
+                }
+
+            } catch (err) {
+                if (sessionId !== activeTrackingSessionId) return;
+                console.error("Firebase fetch error:", err);
+                if (!map) {
+                    showError("Telemetry Loading Failed", err.message || "Failed to retrieve bus coordinates.");
+                }
+            }
+        }
+
+        // ================= EVENT LISTENERS & SETUP =================
+        function setupEventListeners() {
+            // Search Input
+            const searchInput = document.getElementById('busSearchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const resetBtn = document.getElementById('resetSearchBtn');
+
+            function getActiveCategory() {
+                const activeTab = document.querySelector('.filter-tab.active');
+                return activeTab ? activeTab.getAttribute('data-filter') : 'all';
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    if (clearBtn) clearBtn.style.display = val ? 'flex' : 'none';
+                    renderBusList(val, getActiveCategory());
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    clearBtn.style.display = 'none';
+                    renderBusList('', getActiveCategory());
+                    searchInput.focus();
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    if (clearBtn) clearBtn.style.display = 'none';
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    const allTab = document.querySelector('.filter-tab[data-filter="all"]');
+                    if (allTab) allTab.classList.add('active');
+                    renderBusList('', 'all');
+                });
+            }
+
+            // Category Filter Tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const category = tab.getAttribute('data-filter');
+                    renderBusList(searchInput ? searchInput.value : '', category);
+                });
+            });
+
+            // Back button
+            document.getElementById('backToListBtn').addEventListener('click', () => {
+                navigateToList();
+            });
+
+            document.getElementById('overlayBackBtn').addEventListener('click', () => {
+                navigateToList();
+            });
+
+            // Map Controls
+            document.getElementById('recenterBtn').addEventListener('click', () => {
+                const pos = getBusPosition();
+                if (pos && map) {
+                    map.setView([pos.lat, pos.lng], 16);
+                }
+            });
+
+            const homeBtn = document.getElementById('homeBtn');
+            if (homeBtn) {
+                homeBtn.addEventListener('click', () => {
+                    if (userHomeLocation && map) {
+                        map.setView([userHomeLocation.lat, userHomeLocation.lng], 16, { animate: true });
+                        if (userHomeMarker) userHomeMarker.openPopup();
+                    }
+                    startWatchingUserLocation(!userHomeLocation);
+                });
+            }
+
+            const autopanBtn = document.getElementById('autopanBtn');
+            autopanBtn.addEventListener('click', () => {
+                autoPanEnabled = !autoPanEnabled;
+                if (autoPanEnabled) {
+                    autopanBtn.classList.add('active');
+                    const pos = getBusPosition();
+                    if (pos && map) map.panTo([pos.lat, pos.lng]);
+                } else {
+                    autopanBtn.classList.remove('active');
+                }
+            });
+
+            document.getElementById('clearTrailBtn').addEventListener('click', () => {
+                if (confirm("Are you sure you want to clear the bus's route history?")) {
+                    const curPos = getBusPosition();
+                    pathCoordinates = curPos ? [curPos] : [];
+                    if (busPathTrail) busPathTrail.setLatLngs(pathCoordinates.map(c => [c.lat, c.lng]));
+                }
+            });
+
+
+
+            // Retry Button
+            document.getElementById('retryBtn').addEventListener('click', () => {
+                if (currentHash) startTracking(currentHash);
+            });
+
+            // Manual Mode
+            document.getElementById('manualModeBtn').addEventListener('click', () => {
+                const form = document.getElementById('manualForm');
+                form.style.display = form.style.display === 'flex' ? 'none' : 'flex';
+            });
+
+            document.getElementById('manualSubmitBtn').addEventListener('click', () => {
+                const vehicleId = document.getElementById('manualVehicleId').value.trim();
+                const regNo = document.getElementById('manualRegNo').value.trim();
+
+                if (!vehicleId || !regNo) {
+                    alert("Please enter both Vehicle ID and Registration Number.");
+                    return;
+                }
+
+                document.getElementById('regNoBadge').innerHTML = `<span>🚌</span> ${regNo}`;
+                document.getElementById('vehicleTypeBadge').textContent = "Manual Overridden Bus";
+
+                currentVehicleDetails = { id: vehicleId, registrationNumber: regNo };
+
+                stopCurrentTracking();
+                const sessionId = ++activeTrackingSessionId;
+                hideOverlay();
+
+                pathCoordinates = [];
+                if (busPathTrail) busPathTrail.setLatLngs([]);
+
+                pollLocation(vehicleId, regNo, sessionId);
+                updateTimer = setInterval(() => {
+                    if (sessionId === activeTrackingSessionId) {
+                        pollLocation(vehicleId, regNo, sessionId);
+                    }
+                }, 2500);
+            });
+
+            // Handle browser Back / Forward navigation
+            window.addEventListener('popstate', handleUrlRouting);
+            window.addEventListener('hashchange', handleUrlRouting);
+        }
+
+        // ================= ROUTE PARSER =================
+        function handleUrlRouting() {
+            const hash = window.location.hash;
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryHash = urlParams.get('hash');
+
+            if (hash.startsWith('#/track/')) {
+                const targetHash = hash.replace('#/track/', '').trim();
+                if (targetHash && targetHash !== currentHash) {
+                    selectAndTrackBus(targetHash);
+                }
+            } else if (queryHash) {
+                if (queryHash !== currentHash) {
+                    selectAndTrackBus(queryHash);
+                }
+            } else {
+                if (document.getElementById('busTrackingView').classList.contains('active')) {
+                    navigateToList();
+                }
+            }
+        }
+
+        // ================= INITIALIZATION =================
+        window.addEventListener('DOMContentLoaded', () => {
+            // Clean up legacy trail cache from localStorage
+            try {
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('trail_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+            } catch(e) {}
+
+            // Restore saved user home location
+            try {
+                const savedHome = localStorage.getItem('user_home_location');
+                if (savedHome) {
+                    userHomeLocation = JSON.parse(savedHome);
+                }
+            } catch(e) {}
+
+            // Index the bus dataset
+            indexBuses();
+
+            // Populate category counts
+            allSections.forEach(s => {
+                const el = document.getElementById(`count${s.id === '1to12' ? '1to12' : 'Kg'}`);
+                if (el) el.textContent = s.buses.length;
+            });
+
+            // Render the initial bus list
+            renderBusList('', 'all');
+
+            // Populate switcher
+            populateQuickSwitcher();
+
+            // Check recent bus
+            checkRecentBus();
+
+            // Setup listeners
+            setupEventListeners();
+
+            // Handle initial route
+            handleUrlRouting();
+
+            // Service worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.error('Service worker registration failed', err));
+            }
+        });
+    </script>
+</body>
+</html>

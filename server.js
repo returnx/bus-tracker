@@ -18,7 +18,8 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
     // Clean up url path (ignores query parameters like ?hash=...)
-    const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+    const host = req.headers.host || `localhost:${PORT}`;
+    const parsedUrl = new URL(req.url, `http://${host}`);
     let safePath = parsedUrl.pathname;
     
     // Default root path to bus.html
